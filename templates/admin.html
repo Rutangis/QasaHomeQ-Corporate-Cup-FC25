@@ -8,6 +8,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 20px;
         }
         table, th, td {
             border: 1px solid black;
@@ -16,10 +17,23 @@
             padding: 10px;
             text-align: left;
         }
+        h1, h2 {
+            margin-top: 20px;
+        }
+        .download-links {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
-    <h1>Participant Ratings</h1>
+    <h1>Admin - Participant Ratings Overview</h1>
+    
+    <div class="download-links">
+        <a href="{{ url_for('download_participants') }}">Download Participants CSV</a><br>
+        <a href="{{ url_for('download_ratings') }}">Download Ratings CSV</a>
+    </div>
+
+    <h2>Participant Self-Ratings</h2>
     <table>
         <tr>
             <th>Name</th>
@@ -29,6 +43,22 @@
         <tr>
             <td>{{ participant['name'] }}</td>
             <td>{{ participant['rating'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Ratings Given By Participants</h2>
+    <table>
+        <tr>
+            <th>Rater</th>
+            <th>Rated Player</th>
+            <th>Rating</th>
+        </tr>
+        {% for rating in ratings %}
+        <tr>
+            <td>{{ rating['rater'] }}</td>
+            <td>{{ rating['rated_player'] }}</td>
+            <td>{{ rating['rating'] }}</td>
         </tr>
         {% endfor %}
     </table>
