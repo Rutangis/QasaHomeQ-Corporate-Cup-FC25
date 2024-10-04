@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You</title>
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename='images/background.jpg') }}");
+            background-size: cover;
+            background-position: center 37%;
+            background-repeat: no-repeat;
+            font-family: Arial, sans-serif;
+            color: #fff; /* Set text color to white */
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center; /* Horizontally center */
+            align-items: center;    /* Vertically center */
+        }
+
+        /* Flex container to center content */
+        .container {
+            background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
+            padding: 50px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 1150px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3.5em;
+            letter-spacing: 9px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.7em;
+            margin-bottom: 30px;
+        }
+
+        /* Easy to adjust positioning of specific elements */
+        .quote {
+            font-size: 1.5em;
+            line-height: 1.8em;
+            font-family: cursive;
+            margin-top: 20px;
+        }
+
+        /* Adjustments for mobile responsiveness */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2.5em;
+                letter-spacing: 5px;
+            }
+
+            p {
+                font-size: 1.2em;
+            }
+
+            .quote {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Flex container for centralized content -->
+    <div class="container">
+        <h1>You're All Set!</h1>
+
+        <p>Thank you for submitting your ratings!</p>
+
+        <p style="font-size: 1.8em; font-weight: bold;">Stay tuned – the teams and game schedule are coming soon!</p>
+        
+        <p class="quote">"Victory is in having done your best. If you've done your best, you've won." – Billie Jean King</p>
+    </div>
+
+</body>
+</html>
