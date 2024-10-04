@@ -1,409 +1,103 @@
-<!DOCTYPE html>
-<html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tournament Tracker</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>Rate Yourself and 5 Random Players</title>
+    <title>Enter Your Name</title>
     <style>
         body {
-            background-color: #0d1117;
-            font-family: 'Roboto', sans-serif;
-            color: #c9d1d9;
-            overflow-x: hidden;
+            background-image: url("{{ url_for('static', filename='images/background.jpg') }}");
+            text-shadow: 3px 3px 1px rgba(0, 0, 0, 0.9); /* Horizontal, Vertical, Blur, Color */
         }
 
-        .bracket {
-            display: flex;
-            justify-content: flex-start;
-            padding: 20px;
-            overflow-x: auto;
-            background-color: #161b22;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            position: relative;
-        }
-
-        .round {
-            display: flex;
-            flex-direction: column;
-            margin-right: 60px;
-            position: relative;
-        }
-
-        .round-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #ff9e00;
+        h2 {
+            font-size: 2.0em;
+            margin-top: 0; /* Reduces space above the heading */
+            margin-bottom: 5px;
             text-align: center;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            font-family: 'Press Start 2P', cursive;
+            color: #fff; /* White text for consistency */
+            text-shadow: 3px 3px 1px rgba(0, 0, 0, 0.9); /* Horizontal, Vertical, Blur, Color */
         }
-
-        .match {
-            background: linear-gradient(145deg, #21262d, #2c323b);
-            border: 2px solid #30363d;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            width: 240px;
-            position: relative;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-        }
-
-        .match:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
-        }
-
-        .team {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #c9d1d9;
-            margin-bottom: 8px;
-            padding: 8px;
-            border-radius: 6px;
-            transition: background-color 0.3s;
-        }
-
-        .team.winner {
-            background-color: #238636;
-            color: #fff;
-        }
-
-        .team-name {
-            font-weight: bold;
-        }
-
-        .team-score {
-            font-weight: bold;
-            color: #79c0ff;
-        }
-
-        .connector {
-            stroke: #ff9e00;
-            stroke-width: 2px;
-            fill: none;
-        }
-
-        .match-details {
-            display: none;
-            position: fixed;
-            background-color: #161b22;
-            border: 1px solid #30363d;
-            padding: 20px;
-            z-index: 1000;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-            max-width: 690px;
-            max-height: 80vh;
-            overflow-y: auto;
-            border-radius: 8px;
-        }
-
-        .player-image {
-            width: 100px;
-            height: 138px;
-            object-fit: cover;
-            margin: 5px;
-            border-radius: 6px;
-            border: 2px solid #ff9e00;
-        }
-
-        .match-teams {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-
-        .team-info {
-            width: 48%;
+        h4 {
+            font-size: 1.0em;
+            margin-top: 0; /* Reduces space above the heading */
+            margin-bottom: 5px;
             text-align: center;
+            color: #fff; /* White text for consistency */
+            text-shadow: 3px 3px 1px rgba(0, 0, 0, 0.9); /* Horizontal, Vertical, Blur, Color */
+        }
+        /* Form container with reduced width and centered */
+        form {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #333;
         }
 
-        .bet-button {
+        /* Select box styling */
+        select {
             width: 100%;
-            background: linear-gradient(90deg, #ff9e00, #ff3e00);
+            padding: 10px;
+            margin-bottom: 15px;
+            margin-top: 3px;
+            border-radius: 8px;
             border: none;
-            color: #0d1117;
-            padding: 10px 0;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin-top: 10px;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: background 0.3s;
-            font-family: 'Press Start 2P', cursive;
+            background-color: rgba(255, 255, 255, 0.9); /* Same background as text input */
+            font-size: 1em;
+            color: #333;
+            appearance: none; /* Remove default dropdown arrow */
+            -webkit-appearance: none; /* Remove default dropdown arrow in Safari */
+            -moz-appearance: none; /* Remove default dropdown arrow in Firefox */
         }
-
-        .bet-button:hover {
-            background: linear-gradient(90deg, #ff3e00, #ff9e00);
+        /* Focus styling */
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            box-shadow: 0px 0px 10px rgba(50, 205, 50, 0.5); /* Light green glow on focus */
         }
-
-        .match.ongoing {
-            animation: pulse 2s infinite;
-            box-shadow: 0 0 20px #4CAF50;
+        /* Style for placeholder (disabled option) */
+        select option[disabled] {
+            color: rgba(150, 150, 150, 0.7); /* Lighter, shadowy text color */
+            font-style: italic; /* Italics to differentiate the placeholder */
         }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
-            }
-            70% {
-                box-shadow: 0 0 0 20px rgba(76, 175, 80, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
-            }
-        }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, .3);
-            border-radius: 50%;
-            border-top-color: #ff9e00;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 10px;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+        /* Custom submit button */
+        input[type="submit"] {
+            background-color: #32CD32;
     </style>
 </head>
-
 <body>
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-4xl font-bold mb-8 text-center text-yellow-400 font-press-start">Tournament Tracker</h1>
-        {% if tournament %}
-        <h2 class="text-2xl font-semibold mb-6 text-center text-gray-300">{{ tournament.name }}</h2>
-
-        <div id="bracket" class="bracket mb-8"></div>
-
-        <div class="mt-12">
-            <h3 class="text-2xl font-semibold mb-4 text-center text-gray-300">Current Odds</h3>
-            <div id="odds-list" class="bg-gray-800 rounded-lg shadow-md p-6">
-                {% for team, odd in odds.items() %}
-                <div class="flex justify-between items-center py-2 border-b border-gray-700 last:border-b-0">
-                    <span class="font-semibold text-gray-300">{{ team }}</span>
-                    <span class="text-yellow-400 font-bold">{{ odd }}</span>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <script>
-            let currentOpenMatchId = null;
-
-            function fetchAndUpdate(url, callback) {
-                $.getJSON(url, callback).fail(function () {
-                    console.error('Failed to fetch data from:', url);
-                });
-            }
-
-            function updateOdds() {
-                fetchAndUpdate("/odds/{{ tournament.id }}", function (data) {
-                    var oddsList = $("#odds-list");
-                    oddsList.empty();
-                    $.each(data, function (team, odd) {
-                        oddsList.append(`
-                            <div class="flex justify-between items-center py-2 border-b border-gray-700 last:border-b-0">
-                                <span class="font-semibold text-gray-300">${team}</span>
-                                <span class="text-yellow-400 font-bold">${odd}</span>
-                            </div>
-                        `);
-                    });
-                });
-            }
-
-            function updateBracket() {
-                fetchAndUpdate("/tournament/{{ tournament.id }}/bracket", function (data) {
-                    var bracket = $("#bracket");
-                    bracket.empty();
-
-                    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                    svg.setAttribute("width", "100%");
-                    svg.setAttribute("height", "100%");
-                    svg.style.position = "absolute";
-                    svg.style.top = "0";
-                    svg.style.left = "0";
-                    svg.style.pointerEvents = "none";
-                    bracket.append(svg);
-
-                    data.bracket.forEach(function (round, roundIndex) {
-                        var roundElement = $('<div class="round"></div>');
-                        roundElement.append(`<h3 class="round-title">Round ${round.round_number}</h3>`);
-
-                        round.matches.sort((a, b) => a.position - b.position);
-
-                        round.matches.forEach(function (match, matchIndex) {
-                            var matchElement = $('<div class="match"></div>');
-                            if (match.is_ongoing) {
-                                matchElement.addClass('ongoing');
-                            }
-                            matchElement.append(`
-                                <div class="team ${match.winner === match.team1 ? 'winner' : ''}">
-                                    <span class="team-name">${match.team1 || 'TBD'}</span>
-                                    <span class="team-score">${match.team1_score}</span>
-                                </div>
-                                <div class="team ${match.winner === match.team2 ? 'winner' : ''}">
-                                    <span class="team-name">${match.team2 || 'TBD'}</span>
-                                    <span class="team-score">${match.team2_score}</span>
-                                </div>
-                                ${match.is_ongoing ? '<div class="loading"></div>' : ''}
-                            `);
-
-                            var detailsElement = $('<div class="match-details"></div>');
-                            detailsElement.append(`
-                                <div class="match-teams">
-                                    <div class="team-info">
-                                        <div class="team-name">${match.team1 || 'TBD'}</div>
-                                        <div class="team-players" id="team1-players-${match.id}"></div>
-                                        <button class="bet-button" onclick="placeBet(${match.id}, ${match.team1_id}, '${match.team1}')">Bet on ${match.team1}</button>
-                                    </div>
-                                    <div class="team-info">
-                                        <div class="team-name">${match.team2 || 'TBD'}</div>
-                                        <div class="team-players" id="team2-players-${match.id}"></div>
-                                        <button class="bet-button" onclick="placeBet(${match.id}, ${match.team2_id}, '${match.team2}')">Bet on ${match.team2}</button>
-                                    </div>
-                                </div>
-                            `);
-
-                            matchElement.append(detailsElement);
-                            matchElement.attr('data-match-id', match.id);
-                            roundElement.append(matchElement);
-
-                            matchElement.on('mouseenter', function (e) {
-                                showMatchDetails(match.id);
-                            });
-
-                            matchElement.on('mouseleave', function (e) {
-                                hideMatchDetails(match.id);
-                            });
-
-                            fetchAndUpdate(`/match/${match.id}`, updatePlayerDetails);
-                        });
-
-                        bracket.append(roundElement);
-                    });
-
-                    setTimeout(function () {
-                        $('.round').each(function (roundIndex, roundElement) {
-                            if (roundIndex < data.bracket.length - 1) {
-                                var nextRound = $(roundElement).next('.round');
-
-                                $(roundElement).find('.match').each(function (matchIndex, matchElement) {
-                                    var nextMatchIndex = Math.floor(matchIndex / 2);
-                                    var nextMatch = nextRound.find(`.match:eq(${nextMatchIndex})`);
-
-                                    if (nextMatch.length) {
-                                        var startRect = matchElement.getBoundingClientRect();
-                                        var endRect = nextMatch[0].getBoundingClientRect();
-                                        var bracketRect = bracket[0].getBoundingClientRect();
-
-                                        var startX = startRect.right - bracketRect.left;
-                                        var startY = startRect.top + (startRect.height / 2) - bracketRect.top;
-                                        var endX = endRect.left - bracketRect.left;
-                                        var endY = endRect.top + (endRect.height / 2) - bracketRect.top;
-
-                                        var midX = startX + (endX - startX) / 2;
-
-                                        var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                                        path.setAttribute("d", `M${startX},${startY} C${midX},${startY} ${midX},${endY} ${endX},${endY}`);
-                                        path.setAttribute("class", "connector");
-                                        svg.appendChild(path);
-                                    }
-                                });
-                            }
-                        });
-                    }, 0);
-
-                    if (currentOpenMatchId) {
-                        showMatchDetails(currentOpenMatchId);
-                    }
-                });
-            }
-
-            function showMatchDetails(matchId) {
-                currentOpenMatchId = matchId;
-                var details = $(`.match[data-match-id="${matchId}"] .match-details`);
-                var rect = $(`.match[data-match-id="${matchId}"]`)[0].getBoundingClientRect();
-                details.css({
-                    display: 'block',
-                    top: rect.bottom + window.scrollY + 'px',
-                    left: rect.left + window.scrollX + 'px'
-                });
-            }
-
-            function hideMatchDetails(matchId) {
-                currentOpenMatchId = null;
-                var details = $(`.match[data-match-id="${matchId}"] .match-details`);
-                details.css('display', 'none');
-            }
-
-            function updatePlayerDetails(matchDetails) {
-                var team1Players = $(`#team1-players-${matchDetails.id}`);
-                var team2Players = $(`#team2-players-${matchDetails.id}`);
-
-                team1Players.empty();
-                team2Players.empty();
-
-                if (matchDetails.team1.players.length > 0) {
-                    matchDetails.team1.players.forEach(function (player) {
-                        team1Players.append(`<img src="/static/player_images/${player.name}.png" alt="${player.name}" class="player-image" title="${player.name}">`);
-                    });
-                } else {
-                    team1Players.append('<p>No players</p>');
-                }
-
-                if (matchDetails.team2.players.length > 0) {
-                    matchDetails.team2.players.forEach(function (player) {
-                        team2Players.append(`<img src="/static/player_images/${player.name}.png" alt="${player.name}" class="player-image" title="${player.name}">`);
-                    });
-                } else {
-                    team2Players.append('<p>No players</p>');
-                }
-            }
-
-            function placeBet(matchId, teamId, teamName) {
-                var amount = prompt(`Enter bet amount in SEK for ${teamName}:`);
-                var fullName = prompt("Enter your full name:");
-
-                if (amount && fullName) {
-                    $.post(`/place_bet/${matchId}/${teamId}`, { amount: amount, full_name: fullName })
-                        .done(function (data) {
-                            alert(data.message);
-                            updateOdds();
-                        })
-                        .fail(function (jqXHR) {
-                            alert("Error placing bet: " + jqXHR.responseJSON.detail);
-                        });
-                }
-            }
-
-            $(document).ready(function () {
-                updateBracket();
-                setInterval(updateBracket, 5000);
-            });
-
-            setInterval(updateOdds, 5000);
-            updateBracket();
-        </script>
-        {% else %}
-        <p class="text-xl text-center text-gray-600">{{ message }}</p>
-        {% endif %}
-    </div>
+    <form action="{{ url_for('submit') }}" method="post">
+        <h1>Rate Yourself and 5 other Players</h1>
+        <!-- Self-rating -->
+        <h2>Rate Yourself</h2>
+    <form action="{{ url_for('index') }}" method="post">
+        <h1>Enter Your Name to Start Rating</h1>
+        <label for="self_name">Your Name:</label>
+        <input type="text" id="self_name" name="self_name" required>
+        
+        <label for="self_rating">Your Rating:</label>
+        <select id="self_rating" name="self_rating" required>
+            <option value="" disabled selected></option> <!-- Placeholder -->
+            <option value="1">1 - Just Starting</option>
+            <option value="2">2 - Learning</option>
+            <option value="3">3 - Average</option>
+            <option value="4">4 - Skilled</option>
+            <option value="5">5 - Highly Skilled</option>
+        </select>
+        <!-- Rating 5 random participants -->
+        <h2>Rate 5 other Players</h2>
+        <h4>If unsure, go with your gut feeling</h4>
+        {% for participant in random_participants %}
+            <label for="rating_{{ loop.index }}">{{ participant }}</label>
+            <input type="hidden" name="random_player_{{ loop.index }}" value="{{ participant }}">
+            <select id="rating_{{ loop.index }}" name="rating_{{ loop.index }}" required>
+                <option value="" disabled selected></option> <!-- Placeholder -->
+                <option value="1">1 - Just Starting</option>
+                <option value="2">2 - Learning</option>
+                <option value="3">3 - Average</option>
+                <option value="4">4 - Skilled</option>
+                <option value="5">5 - Highly Skilled</option>
+            </select>
+        {% endfor %}
+        
+        <input type="submit" value="Submit">
+        <input type="submit" value="Proceed to Rating">
+    </form>
 </body>
-
 </html>
