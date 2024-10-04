@@ -2,29 +2,17 @@ from flask import Flask, render_template, request, redirect, url_for, send_file
 import csv
 import os
 import random
-from collections import Counter
 
 app = Flask(__name__)
 
-# Ensure the CSV files exist
-if not os.path.isfile('participants.csv'):
-    with open('participants.csv', 'w', newline='') as csvfile:
-        fieldnames = ['name', 'rating']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-
-if not os.path.isfile('ratings.csv'):
-    with open('ratings.csv', 'w', newline='') as csvfile:
-        fieldnames = ['rater', 'rated_player', 'rating']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-
-# Function to count ratings for each participant
+# Function to count ratings per participant
 def get_rating_counts():
-    ratings_counter = Counter()
+    ratings_counter = {}
     with open('ratings.csv', 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
+            if row['rated_player'] not in ratings_counter:
+                ratings_counter[row['rated_player']] = 0
             ratings_counter[row['rated_player']] += 1
     return ratings_counter
 
@@ -32,6 +20,7 @@ def get_rating_counts():
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
+        # Get the name and redirect to the rate page
         self_name = request.form['self_name'].strip().lower()
         return redirect(url_for('rate', self_name=self_name))
     return render_template('index.html')
@@ -43,59 +32,51 @@ def rate(self_name):
         # Handle rating submission
         self_rating = request.form['self_rating']
 
-        # Save the self-rating to the `participants.csv`
+        # Update or add the self-rating in `participants.csv`
         with open('participants.csv', 'r') as csvfile:
             participants = list(csv.DictReader(csvfile))
 
-        # Update the self-rating if already exists or add a new entry
         with open('participants.csv', 'w', newline='') as csvfile:
             fieldnames = ['name', 'rating']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             updated = False
             for participant in participants:
-                if 'name' in participant and 'rating' in participant:
-                    if participant['name'].strip().lower() == self_name:
-                        participant['rating'] = self_rating
-                        updated = True
-                    writer.writerow(participant)
+                if participant['name'].strip().lower() == self_name:
+                    participant['rating'] = self_rating
+                    updated = True
+                writer.writerow(participant)
             if not updated:
                 writer.writerow({'name': self_name, 'rating': self_rating})
 
         # Save the ratings for the 5 random participants in `ratings.csv`
-        for i in range(1, 6):
-            if f'random_player_{i}' in request.form:
+        with open('ratings.csv', 'a', newline='') as csvfile:
+            fieldnames = ['rater', 'rated_player', 'rating']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            for i in range(1, 6):
                 random_player = request.form[f'random_player_{i}']
                 random_rating = request.form[f'rating_{i}']
-
-                with open('ratings.csv', 'a', newline='') as csvfile:
-                    fieldnames = ['rater', 'rated_player', 'rating']
-                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                    writer.writerow({'rater': self_name, 'rated_player': random_player, 'rating': random_rating})
+                writer.writerow({'rater': self_name, 'rated_player': random_player, 'rating': random_rating})
 
         return redirect(url_for('thank_you'))
 
     # If GET request, display the rating form
     participants = []
     ratings_counter = get_rating_counts()
-    
+
     # Read participants from CSV and filter out the current user
     with open('participants.csv', 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             if row['name'].strip().lower() != self_name:
-                participants.append(row['name'])  # We only need the names here
-    
+                participants.append(row['name'])
+
     # Sort participants by how often they've been rated (ascending)
-    sorted_participants = sorted(participants, key=lambda x: ratings_counter[x])
+    sorted_participants = sorted(participants, key=lambda x: ratings_counter.get(x, 0))
 
     # Choose the 5 participants who have been rated the least (if there are at least 5)
-    if len(sorted_participants) >= 5:
-        random_participants = sorted_participants[:5]
-    else:
-        random_participants = sorted_participants  # If less than 5, show all
-    
-    # Pass the selected participants to the template
+    random_participants = sorted_participants[:5] if len(sorted_participants) >= 5 else sorted_participants
+
     return render_template('rate.html', random_participants=random_participants, self_name=self_name)
 
 # Route to display a "Thank You" page after submission
@@ -106,7 +87,6 @@ def thank_you():
 # Admin route to view participants and ratings (password protected)
 @app.route('/admin')
 def admin():
-    # Simple password protection
     password = request.args.get('password')
     if password == 'FC25Admin123':  # Replace with your actual admin password
         participants = []
@@ -123,8 +103,7 @@ def admin():
             reader = csv.DictReader(csvfile)
             for row in reader:
                 ratings.append(row)
-        
-        # Pass the participants and ratings data to the admin template
+
         return render_template('admin.html', participants=participants, ratings=ratings)
     else:
         return "Unauthorized access", 401
