@@ -5,20 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rate Yourself and 5 Random Players</title>
     <style>
-        body {
-            background-image: url("{{ url_for('static', filename='images/background.jpg') }}");
-            background-size: cover;
-            background-position: center 37%;
-            background-repeat: no-repeat;
-            font-family: Arial, sans-serif;
-            color: #fff; /* Set text color to white */
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center; /* Horizontally center */
-            align-items: center;    /* Vertically center */
+        /* Apply the custom ball cursor to all interactive elements */
+        body, form, input, button, select, textarea, a {
+            cursor: url("{{ url_for('static', filename='images/ball-cursor.png') }}") 16 16, default !important; /* Ball cursor with hotspot at (16,16) */
         }
 
+        /* Background and layout styling */
+        body {
+            background-image: url("{{ url_for('static', filename='images/background.jpg') }}");
+            background-size: cover;  /* Ensures the entire container is filled */
+            background-position: center; /* Keeps the image centered */
+            background-repeat: no-repeat; /* Prevent repeating */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            min-height: 100vh; /* Full viewport height */
+            width: 100vw;  /* Full viewport width */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto; /* Allow scrolling on smaller screens */
+        }
+
+        /* Heading styles */
         h1 {
             text-align: center;
             text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.9);
@@ -30,7 +38,7 @@
 
         h2 {
             font-size: 2.0em;
-            margin-top: 0; /* Reduces space above the heading */
+            margin-top: 20px; /* Reduces space above the heading */
             margin-bottom: 5px;
             text-align: center;
             color: #fff; /* White text for consistency */
@@ -40,13 +48,13 @@
         h4 {
             font-size: 1.0em;
             margin-top: 0; /* Reduces space above the heading */
-            margin-bottom: 5px;
+            margin-bottom: 20px;
             text-align: center;
             color: #fff; /* White text for consistency */
             text-shadow: 3px 3px 1px rgba(0, 0, 0, 0.9); /* Horizontal, Vertical, Blur, Color */
         }
 
-        /* Form container with reduced width and centered */
+        /* Form container styling */
         form {
             background-color: rgba(0, 0, 0, 0.7);
             padding: 30px;
@@ -54,38 +62,42 @@
             max-width: 350px;
             margin: 170px auto;
             box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.3);
+            width: calc(100% - 40px); /* Responsive width */
         }
 
+        /* Label styling */
         label {
-            font-size: 1.1em;
+            font-size: 1.5em;
             font-weight: bold;
-            margin-bottom: 15px;
+            margin-bottom: 5px;
             color: #fff; /* White text for form labels */
+            display: block; /* Ensure labels take full width */
+            text-shadow: 3px 3px 1px rgba(0, 0, 0, 0.9); /* Horizontal, Vertical, Blur, Color */
         }
 
         /* Text input styling */
         input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
+            width: 92.3%;
+            padding: 12px;
+            margin: 0px 0 20px 0; /* Top, Right, Bottom, Left */
             border-radius: 8px;
-            border: none;
-            background-color: rgba(255, 255, 255, 0.9);
-            font-size: 1em;
-            box-shadow: none;
-            color: #333;
+            border: 1px solid #ccc; /* Light border to distinguish the input field */
+            font-size: 1.3em;
+            color: #010101; /* Text color inside input */
+            background-color: #f5f5f5; /* Light grey background for input box */
+            text-shadow: 3px 3px 1px rgba(0, 0, 0, 0.9); /* Horizontal, Vertical, Blur, Color */
         }
 
         /* Select box styling */
         select {
             width: 100%;
             padding: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             margin-top: 3px;
             border-radius: 8px;
             border: none;
             background-color: rgba(255, 255, 255, 0.9); /* Same background as text input */
-            font-size: 1em;
+            font-size: 1.3em;
             color: #333;
             appearance: none; /* Remove default dropdown arrow */
             -webkit-appearance: none; /* Remove default dropdown arrow in Safari */
@@ -95,12 +107,12 @@
         /* Focus styling */
         select:focus, input[type="text"]:focus {
             outline: none;
-            box-shadow: 0px 0px 10px rgba(50, 205, 50, 0.5); /* Light green glow on focus */
+            box-shadow: 5px 5px 30px rgba(50, 205, 50, 0.7); /* Light green glow on focus */
         }
 
         /* Style for placeholder (disabled option) */
         select option[disabled] {
-            color: rgba(150, 150, 150, 0.7); /* Lighter, shadowy text color */
+            color: rgba(198, 198, 198, 0.941); /* Lighter, shadowy text color */
             font-style: italic; /* Italics to differentiate the placeholder */
         }
 
@@ -109,18 +121,48 @@
             background-color: #32CD32;
             color: white;
             padding: 12px;
-            margin-top: 5px;
+            margin: 8px 0 20px 0; /* Top, Right, Bottom, Left */
             border: none;
             border-radius: 25px;
-            font-size: 1.5em;
+            font-size: 1.7em;
             font-weight: bold;
             width: 100%;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+            height: 60px;
+            transition: background-color 0.3s ease; /* Smooth transition on hover */
         }
 
         input[type="submit"]:hover {
-            background-color: #28a428;
+            background-color: #00f300;
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 768px) {
+            body {
+                background-position: center top; /* Adjust to look better on smaller screens */
+            }
+
+            form {
+                padding: 20px;
+                max-width: 90vw;
+                margin: 50px auto;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            label {
+                font-size: 1.2em;
+            }
+
+            input[type="submit"] {
+                height: 50px;
+                font-size: 1.3em;
+            }
         }
     </style>
 </head>
@@ -130,9 +172,8 @@
 
         <!-- Self-rating -->
         <h2>Rate Yourself</h2>
-        <label for="self_rating">Your Rating:</label>
         <select id="self_rating" name="self_rating" required>
-            <option value="" disabled selected></option> <!-- Placeholder -->
+            <option value="" disabled selected>Select rating</option> <!-- Placeholder -->
             <option value="1">1 - Just Starting</option>
             <option value="2">2 - Learning</option>
             <option value="3">3 - Average</option>
@@ -147,7 +188,7 @@
             <label for="rating_{{ loop.index }}">{{ participant }}</label>
             <input type="hidden" name="random_player_{{ loop.index }}" value="{{ participant }}">
             <select id="rating_{{ loop.index }}" name="rating_{{ loop.index }}" required>
-                <option value="" disabled selected></option> <!-- Placeholder -->
+                <option value="" disabled selected>Select rating</option> <!-- Placeholder -->
                 <option value="1">1 - Just Starting</option>
                 <option value="2">2 - Learning</option>
                 <option value="3">3 - Average</option>

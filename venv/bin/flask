@@ -1,4 +1,4 @@
-#!/Users/henrysalomonsson/Desktop/fc25_tournament/venv/bin/python3.12
+#!/Users/henrysalomonsson/Desktop/Privat/fc25_tournament/venv/bin/python3.12
 # -*- coding: utf-8 -*-
 import re
 import sys
