@@ -18,9 +18,10 @@ def get_rating_counts():
     with open('ratings.csv', 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            if row['rated_player'] not in ratings_counter:
-                ratings_counter['rated_player'] = 0
-            ratings_counter[row['rated_player']] += 1
+            rated_player = row['rated_player']  # Get the rated player from the row
+            if rated_player not in ratings_counter:
+                ratings_counter[rated_player] = 0  # Initialize if not present
+            ratings_counter[rated_player] += 1  # Increment the count
     return ratings_counter
 
 # Flask-WTF form for admin login
