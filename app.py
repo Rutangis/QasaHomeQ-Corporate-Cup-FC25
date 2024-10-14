@@ -108,6 +108,18 @@ def admin_remove_participant():
 
     return redirect(url_for('admin'))
 
+@app.route('/download_participants', methods=['GET'])
+def download_participants():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    return send_file('participants.csv', as_attachment=True)
+
+@app.route('/download_ratings', methods=['GET'])
+def download_ratings():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    return send_file('ratings.csv', as_attachment=True)
+
 def compute_summary_statistics():
     ratings_data = {}
     with open('ratings.csv', 'r') as csvfile:
