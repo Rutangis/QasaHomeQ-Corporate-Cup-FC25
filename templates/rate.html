@@ -155,7 +155,7 @@
 </head>
 <body>
     <form action="{{ url_for('rate', self_name=self_name) }}" method="post">
-        {{ form.hidden_tag() }}
+        {{ csrf_token() }}
         <h1>Rate Yourself and 5 other Players</h1>
 
         <!-- Self-rating -->
@@ -186,13 +186,6 @@
         {% endfor %}
         
         <input type="submit" value="Submit">
- </body>       
-    <form method="POST" action="{{ url_for('index') }}">
-    {{ form.hidden_tag() }}  <!-- This generates the CSRF token -->
-    <h1>Enter Your Name As In Slack</h1>
-    {{ form.self_name.label }}
-    {{ form.self_name }}
-    <input type="submit" value="Proceed to Rating">
     </form>
 </body>
 </html>
