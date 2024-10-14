@@ -15,9 +15,61 @@ class AdminLoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
+    if request.method == 'POST':
+        self_name = request.form['self_name'].strip().lower()
+        return redirect(url_for('rate', self_name=self_name))
     return render_template('index.html')
+
+@app.route('/rate/<self_name>', methods=['GET', 'POST'])
+def rate(self_name):
+    if request.method == 'POST':
+        self_rating = request.form['self_rating']
+
+        with open('participants.csv', 'r') as csvfile:
+            participants = list(csv.DictReader(csvfile))
+
+        with open('participants.csv', 'w', newline='') as csvfile:
+            fieldnames = ['name', 'rating']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            updated = False
+            for participant in participants:
+                if participant['name'].strip().lower() == self_name:
+                    participant['rating'] = self_rating
+                    updated = True
+                writer.writerow(participant)
+            if not updated:
+                writer.writerow({'name': self_name, 'rating': self_rating})
+
+        with open('ratings.csv', 'a', newline='') as csvfile:
+            fieldnames = ['rater', 'rated_player', 'rating']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            for i in range(1, 6):
+                random_player = request.form[f'random_player_{i}']
+                random_rating = request.form[f'rating_{i}']
+                writer.writerow({'rater': self_name, 'rated_player': random_player, 'rating': random_rating})
+
+        return redirect(url_for('thank_you'))
+
+    participants = []
+    ratings_counter = get_rating_counts()
+
+    with open('participants.csv', 'r') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if row['name'].strip().lower() != self_name:
+                participants.append(row['name'])
+
+    sorted_participants = sorted(participants, key=lambda x: ratings_counter.get(x, 0))
+    random_participants = sorted_participants[:5] if len(sorted_participants) >= 5 else sorted_participants
+
+    return render_template('rate.html', random_participants=random_participants, self_name=self_name)
+
+@app.route('/thank_you')
+def thank_you():
+    return render_template('thank_you.html')
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
@@ -156,6 +208,17 @@ def compute_summary_statistics():
 
     summary.sort(key=lambda x: x['avg_rating'] if isinstance(x['avg_rating'], (int, float)) else -1, reverse=True)
     return summary
+
+def get_rating_counts():
+    ratings_counter = {}
+    with open('ratings.csv', 'r') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            rated_player = row['rated_player']
+            if rated_player not in ratings_counter:
+                ratings_counter[rated_player] = 0
+            ratings_counter[rated_player] += 1
+    return ratings_counter
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5001, debug=True)
