@@ -232,40 +232,60 @@ def download_ratings():
         return "Error downloading file", 500
 
 def compute_summary_statistics():
+    participants = []
     ratings_data = {}
+
+    with open('participants.csv', 'r') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            participants.append(row)
+
     with open('ratings.csv', 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             rated_player = row['rated_player']
-            rating = int(row['rating'])
             if rated_player not in ratings_data:
                 ratings_data[rated_player] = []
-            ratings_data[rated_player].append(rating)
+            ratings_data[rated_player].append(int(row['rating']))
 
+    # Calculate summary statistics (average, median, number of ratings)
     summary = []
-    with open('participants.csv', 'r') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            name = row['name']
-            own_rating = row.get('rating', None)
-            if name in ratings_data:
-                avg_rating = mean(ratings_data[name])
-                med_rating = median(ratings_data[name])
-                num_ratings = len(ratings_data[name])
-            else:
-                avg_rating = None
-                med_rating = None
-                num_ratings = 0
-
-            summary.append({
-                'name': name,
-                'own_rating': own_rating if own_rating else 'N/A',
-                'avg_rating': round(avg_rating, 2) if avg_rating is not None else 'N/A',
-                'med_rating': round(med_rating, 2) if med_rating is not None else 'N/A',
-                'num_ratings': num_ratings
-            })
-
+    for participant in participants:
+        name = participant['name']
+        own_rating = participant.get('rating', None)
+        if name in ratings_data:
+            avg_rating = mean(ratings_data[name])
+            med_rating = median(ratings_data[name])
+            num_ratings = len(ratings_data[name])
+        else:
+            avg_rating = None
+            med_rating = None
+            num_ratings = 0
+        
+        summary.append({
+            'name': name,
+            'own_rating': own_rating if own_rating else 'N/A',
+            'avg_rating': round(avg_rating, 2) if avg_rating is not None else 'N/A',
+            'med_rating': round(med_rating, 2) if med_rating is not None else 'N/A',
+            'num_ratings': num_ratings
+        })
+    
+    # Sort summary by average rating in descending order
+    summary.sort(key=lambda x: x['avg_rating'] if isinstance(x['avg_rating'], (int, float)) else -1, reverse=True)
+    
     return summary
 
+def get_rating_counts():
+    ratings_counter = {}
+    with open('ratings.csv', 'r') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            rated_player = row['rated_player']
+            if rated_player in ratings_counter:
+                ratings_counter[rated_player] += 1
+            else:
+                ratings_counter[rated_player] = 1
+    return ratings_counter
+
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5001)
+    app.run(host='0.0.0.0', port=5001, debug=True)
