@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login</title>
     <style>
+        /* Apply the custom ball cursor to all interactive elements */
+        body, form, input, button, select, textarea, a {
+            cursor: url("{{ url_for('static', filename='images/ball-cursor.png') }}") 16 16, default !important;
+        }
+
         body {
             background-image: url("{{ url_for('static', filename='images/background.jpg') }}");
             background-size: cover;
@@ -32,6 +37,7 @@
             color: #fff;
             font-size: 2em;
             margin-bottom: 20px;
+            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.7);
         }
 
         form {
@@ -52,6 +58,13 @@
             border: none;
             font-size: 1.1em;
             margin-bottom: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        input[type="password"]:focus {
+            outline: none;
+            box-shadow: 0 0 5px #32CD32; /* Light green glow on focus */
         }
 
         input[type="submit"] {
@@ -63,6 +76,9 @@
             font-size: 1.3em;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            width: 100%;
+            height: 50px;
+            font-weight: bold;
         }
 
         input[type="submit"]:hover {
@@ -70,6 +86,7 @@
         }
 
         .flash-messages {
+            width: 100%;
             margin-bottom: 20px;
         }
 
@@ -88,11 +105,33 @@
         .alert-success {
             background-color: #2ecc71;
         }
+
+        /* Responsive adjustments for mobile devices */
+        @media (max-width: 600px) {
+            .login-container {
+                padding: 20px;
+                width: 90%;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            input[type="password"] {
+                font-size: 1em;
+            }
+
+            input[type="submit"] {
+                font-size: 1.1em;
+                height: 45px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="login-container">
         <h2>Admin Login</h2>
+        
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -104,10 +143,10 @@
             {% endif %}
         {% endwith %}
 
-        <form method="POST">
-            {{ form.hidden_tag() }}
-            <label for="password">{{ form.password.label }}</label>
-            {{ form.password }}
+        <form action="{{ url_for('admin_login') }}" method="post">
+            <!-- Removed CSRF token as security features are simplified -->
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter admin password" required>
             <input type="submit" value="Login">
         </form>
     </div>
