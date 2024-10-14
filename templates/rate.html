@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rate Yourself and 5 Random Players</title>
+    <title>Enter Your Name</title>
     <style>
         /* Apply the custom ball cursor to all interactive elements */
         body, form, input, button, select, textarea, a {
@@ -31,48 +31,39 @@
             text-align: center;
             text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.9);
             font-size: 2.5em;
-            margin-top: 0px;
+            margin: 10px 0 20px 0; /* Top, Right, Bottom, Left */
             color: #fff; /* White text for the header */
-            text-shadow: 3px 3px 1px rgba(0, 0, 0, 0.9); /* Horizontal, Vertical, Blur, Color */
-        }
-
-        h2 {
-            font-size: 2.0em;
-            margin-top: 20px; /* Reduces space above the heading */
-            margin-bottom: 5px;
-            text-align: center;
-            color: #fff; /* White text for consistency */
-            text-shadow: 3px 3px 1px rgba(0, 0, 0, 0.9); /* Horizontal, Vertical, Blur, Color */
-        }
-
-        h4 {
-            font-size: 1.0em;
-            margin-top: 0; /* Reduces space above the heading */
-            margin-bottom: 20px;
-            text-align: center;
-            color: #fff; /* White text for consistency */
             text-shadow: 3px 3px 1px rgba(0, 0, 0, 0.9); /* Horizontal, Vertical, Blur, Color */
         }
 
         /* Form container styling */
         form {
             background-color: rgba(0, 0, 0, 0.7);
-            padding: 30px;
-            border-radius: 15px;
-            max-width: 350px;
-            margin: 170px auto;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 700px;
+            width: calc(100% - 40px); /* Ensure the form is responsive, with padding space */
             box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.3);
-            width: calc(100% - 40px); /* Responsive width */
         }
 
         /* Label styling */
         label {
-            font-size: 1.5em;
-            font-weight: bold;
-            margin-bottom: 5px;
+            display: block;
+            font-size: 1.2em;
+            margin-bottom: 0;
             color: #fff; /* White text for form labels */
-            display: block; /* Ensure labels take full width */
-            text-shadow: 3px 3px 1px rgba(0, 0, 0, 0.9); /* Horizontal, Vertical, Blur, Color */
+        }
+
+        /* Text input styling */
+        input[type="text"] {
+            width: 96%;
+            padding: 12px;
+            margin: 0px 0 20px 0; /* Top, Right, Bottom, Left */
+            border-radius: 8px;
+            border: 1px solid #ccc; /* Light border to distinguish the input field */
+            font-size: 1.7em;
+            color: #010101; /* Text color inside input */
+            background-color: #f5f5f5; /* Light grey background for input box */
         }
 
         /* Select box styling */
@@ -84,7 +75,7 @@
             border-radius: 8px;
             border: none;
             background-color: rgba(255, 255, 255, 0.9); /* Same background as text input */
-            font-size: 1.3em;
+            font-size: 1em;
             color: #333;
             appearance: none; /* Remove default dropdown arrow */
             -webkit-appearance: none; /* Remove default dropdown arrow in Safari */
@@ -119,7 +110,7 @@
         }
 
         input[type="submit"]:hover {
-            background-color: #00f300;
+            background-color: #28a428;
         }
 
         /* Responsive adjustments for smaller screens */
@@ -129,20 +120,15 @@
             }
 
             form {
-                padding: 20px;
+                padding: 10px;
                 max-width: 90vw;
-                margin: 50px auto;
             }
 
             h1 {
                 font-size: 1.8em;
             }
 
-            h2 {
-                font-size: 1.5em;
-            }
-
-            label {
+            input[type="text"] {
                 font-size: 1.2em;
             }
 
@@ -154,38 +140,11 @@
     </style>
 </head>
 <body>
-    <form action="{{ url_for('rate', self_name=self_name) }}" method="post">
-        {{ csrf_token() }}
-        <h1>Rate Yourself and 5 other Players</h1>
-
-        <!-- Self-rating -->
-        <h2>Rate Yourself</h2>
-        <select id="self_rating" name="self_rating" required>
-            <option value="" disabled selected>Select rating</option> <!-- Placeholder -->
-            <option value="1">1 - Just Starting</option>
-            <option value="2">2 - Learning</option>
-            <option value="3">3 - Average</option>
-            <option value="4">4 - Skilled</option>
-            <option value="5">5 - Highly Skilled</option>
-        </select>
-
-        <!-- Rating 5 random participants -->
-        <h2>Rate 5 other Players</h2>
-        <h4>If unsure, go with your gut feeling</h4>
-        {% for participant in random_participants %}
-            <label for="rating_{{ loop.index }}">{{ participant }}</label>
-            <input type="hidden" name="random_player_{{ loop.index }}" value="{{ participant }}">
-            <select id="rating_{{ loop.index }}" name="rating_{{ loop.index }}" required>
-                <option value="" disabled selected>Select rating</option> <!-- Placeholder -->
-                <option value="1">1 - Just Starting</option>
-                <option value="2">2 - Learning</option>
-                <option value="3">3 - Average</option>
-                <option value="4">4 - Skilled</option>
-                <option value="5">5 - Highly Skilled</option>
-            </select>
-        {% endfor %}
-        
-        <input type="submit" value="Submit">
+    <form action="{{ url_for('index') }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <h1>Enter Your Name As In Slack</h1>
+        <input type="text" id="self_name" name="self_name" placeholder="John Doe / Jane Doe" required>
+        <input type="submit" value="Proceed to Rating">
     </form>
 </body>
 </html>
