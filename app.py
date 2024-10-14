@@ -5,9 +5,12 @@ from flask_wtf import FlaskForm
 from wtforms import PasswordField, SubmitField
 from wtforms.validators import DataRequired
 from statistics import mean, median
+from flask_wtf.csrf import CSRFProtect
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
+
+csrf = CSRFProtect(app)
 
 ADMIN_PASSWORD = "FC25Admin123"
 
@@ -87,22 +90,26 @@ def admin():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
 
-    participants = []
-    ratings = []
+    try:
+        participants = []
+        ratings = []
 
-    with open('participants.csv', 'r') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            participants.append(row)
+        with open('participants.csv', 'r') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                participants.append(row)
 
-    with open('ratings.csv', 'r') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            ratings.append(row)
+        with open('ratings.csv', 'r') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                ratings.append(row)
 
-    summary = compute_summary_statistics()
+        summary = compute_summary_statistics()
 
-    return render_template('admin.html', participants=participants, ratings=ratings, summary=summary)
+        return render_template('admin.html', participants=participants, ratings=ratings, summary=summary)
+    except Exception as e:
+        print(f"Error in admin route: {e}")
+        return f"Internal Server Error: {e}", 500
 
 @app.route('/admin/add_participant', methods=['POST'])
 def admin_add_participant():
@@ -164,13 +171,21 @@ def admin_remove_participant():
 def download_participants():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
-    return send_file('participants.csv', as_attachment=True)
+    try:
+        return send_file('participants.csv', as_attachment=True)
+    except Exception as e:
+        print(f"Download error: {e}")
+        return "Error downloading file", 500
 
 @app.route('/download_ratings', methods=['GET'])
 def download_ratings():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
-    return send_file('ratings.csv', as_attachment=True)
+    try:
+        return send_file('ratings.csv', as_attachment=True)
+    except Exception as e:
+        print(f"Download error: {e}")
+        return "Error downloading file", 500
 
 def compute_summary_statistics():
     ratings_data = {}
