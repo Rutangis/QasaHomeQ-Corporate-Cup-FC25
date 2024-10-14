@@ -270,7 +270,7 @@
                     <button type="button" onclick="confirmUpdate('rating-update-{{ loop.index }}')">Update</button>
                 </td>
                 <td>
-                    <form id="remove-rating-{{ loop.index }}" action="{{ url_for('admin_remove_rating') }}" method="post">
+                    <form id="remove-rating-{{ loop.index }}" action="{{ url_for('admin_remove_given_rating') }}" method="post">
                         <input type="hidden" name="rater" value="{{ rating['rater'] }}">
                         <input type="hidden" name="rated_player" value="{{ rating['rated_player'] }}">
                         <button type="button" class="remove-button" onclick="confirmRemove('remove-rating-{{ loop.index }}')">Remove</button>
