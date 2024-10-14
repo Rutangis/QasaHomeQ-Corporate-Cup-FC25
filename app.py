@@ -190,6 +190,27 @@ def admin_remove_participant():
 
     return redirect(url_for('admin'))
 
+@app.route('/admin/remove_rating', methods=['POST'])
+def admin_remove_rating():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    rater = request.form['rater']
+    rated_player = request.form['rated_player']
+
+    with open('ratings.csv', 'r') as csvfile:
+        ratings = list(csv.DictReader(csvfile))
+
+    with open('ratings.csv', 'w', newline='') as csvfile:
+        fieldnames = ['rater', 'rated_player', 'rating']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for rating in ratings:
+            if rating['rater'] != rater or rating['rated_player'] != rated_player:
+                writer.writerow(rating)
+
+    return redirect(url_for('admin'))
+
 @app.route('/download_participants', methods=['GET'])
 def download_participants():
     if not session.get('admin_logged_in'):
@@ -240,23 +261,4 @@ def compute_summary_statistics():
                 'name': name,
                 'own_rating': own_rating if own_rating else 'N/A',
                 'avg_rating': round(avg_rating, 2) if avg_rating is not None else 'N/A',
-                'med_rating': round(med_rating, 2) if med_rating is not None else 'N/A',
-                'num_ratings': num_ratings
-            })
-
-    summary.sort(key=lambda x: x['avg_rating'] if isinstance(x['avg_rating'], (int, float)) else -1, reverse=True)
-    return summary
-
-def get_rating_counts():
-    ratings_counter = {}
-    with open('ratings.csv', 'r') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            rated_player = row['rated_player']
-            if rated_player not in ratings_counter:
-                ratings_counter[rated_player] = 0
-            ratings_counter[rated_player] += 1
-    return ratings_counter
-
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5001, debug=True)
+                'med_rating':
