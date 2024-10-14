@@ -73,6 +73,11 @@ class AdminLoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
 
+# Root route for general access
+@app.route('/')
+def index():
+    return render_template('index.html')
+
 # Admin login route
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
