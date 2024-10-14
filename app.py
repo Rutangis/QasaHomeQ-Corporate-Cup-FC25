@@ -4,15 +4,28 @@ from flask import Flask, render_template, request, redirect, url_for, send_file,
 import csv
 import os
 from statistics import mean, median
-import random
 
 app = Flask(__name__)
-app.secret_key = 'FC25Admin123'  # Replace with a strong, random key
+app.secret_key = 'your-secret-key'  # Replace with a strong, random key
 
 ADMIN_PASSWORD = "FC25Admin123"  # Replace with a secure password
 
+def initialize_csv_files():
+    """Ensure that participants.csv and ratings.csv exist with headers."""
+    if not os.path.exists('participants.csv'):
+        with open('participants.csv', 'w', newline='') as csvfile:
+            fieldnames = ['name', 'rating']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+
+    if not os.path.exists('ratings.csv'):
+        with open('ratings.csv', 'w', newline='') as csvfile:
+            fieldnames = ['rater', 'rated_player', 'rating']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+
 def get_rating_counts():
-    """Counts the number of ratings each participant has received."""
+    """Count the number of ratings each participant has received."""
     ratings_counter = {}
     if os.path.exists('ratings.csv'):
         with open('ratings.csv', 'r', newline='') as csvfile:
@@ -23,7 +36,7 @@ def get_rating_counts():
     return ratings_counter
 
 def compute_summary_statistics():
-    """Computes summary statistics for participants based on ratings."""
+    """Compute summary statistics for participants based on ratings."""
     participants = []
     ratings_data = {}
 
@@ -72,20 +85,6 @@ def compute_summary_statistics():
 
     return summary
 
-def initialize_csv_files():
-    """Ensures that participants.csv and ratings.csv exist with headers."""
-    if not os.path.exists('participants.csv'):
-        with open('participants.csv', 'w', newline='') as csvfile:
-            fieldnames = ['name', 'rating']
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-
-    if not os.path.exists('ratings.csv'):
-        with open('ratings.csv', 'w', newline='') as csvfile:
-            fieldnames = ['rater', 'rated_player', 'rating']
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-
 @app.before_first_request
 def setup():
     """Initialize CSV files before the first request."""
@@ -105,7 +104,7 @@ def index():
 def rate(self_name):
     if request.method == 'POST':
         self_rating = request.form.get('self_rating')
-        if not self_rating or not self_rating.isdigit() or not (1 <= int(self_rating) <=5):
+        if not self_rating or not self_rating.isdigit() or not (1 <= int(self_rating) <= 5):
             flash('Invalid self-rating. Please select a rating between 1 and 5.', 'danger')
             return redirect(url_for('rate', self_name=self_name))
         self_rating = int(self_rating)
@@ -120,7 +119,7 @@ def rate(self_name):
                     row['rating'] = self_rating
                     participant_found = True
                 participants.append(row)
-        
+
         if not participant_found:
             participants.append({'name': self_name, 'rating': self_rating})
 
@@ -138,11 +137,11 @@ def rate(self_name):
                 random_player = request.form.get(f'random_player_{i}')
                 random_rating = request.form.get(f'rating_{i}')
                 if random_player and random_rating:
-                    if random_rating.isdigit() and 1 <= int(random_rating) <=5:
+                    if random_rating.isdigit() and 1 <= int(random_rating) <= 5:
                         writer.writerow({'rater': self_name, 'rated_player': random_player, 'rating': int(random_rating)})
                     else:
                         flash(f'Invalid rating for {random_player}. Must be between 1 and 5.', 'danger')
-        
+
         return redirect(url_for('thank_you'))
 
     # GET request handling
@@ -245,7 +244,7 @@ def admin_update_participant_rating():
     participant_name = request.form.get('participant_name', '').strip()
     new_rating = request.form.get('rating', '').strip()
 
-    if not new_rating.isdigit() or not (1 <= int(new_rating) <=5):
+    if not new_rating.isdigit() or not (1 <= int(new_rating) <= 5):
         flash('Invalid rating. Please enter a number between 1 and 5.', 'danger')
         return redirect(url_for('admin_dashboard'))
 
@@ -284,7 +283,7 @@ def admin_update_given_ratings():
     rated_player = request.form.get('rated_player', '').strip()
     new_rating = request.form.get('rating', '').strip()
 
-    if not new_rating.isdigit() or not (1 <= int(new_rating) <=5):
+    if not new_rating.isdigit() or not (1 <= int(new_rating) <= 5):
         flash('Invalid rating. Please enter a number between 1 and 5.', 'danger')
         return redirect(url_for('admin_dashboard'))
 
