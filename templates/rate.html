@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enter Your Name</title>
+    <title>Rate Yourself and 5 Random Players</title>
     <style>
         /* Apply the custom ball cursor to all interactive elements */
         body, form, input, button, select, textarea, a {
@@ -140,11 +140,38 @@
     </style>
 </head>
 <body>
-    <form action="{{ url_for('index') }}" method="post">
+    <form action="{{ url_for('rate', self_name=self_name) }}" method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <h1>Enter Your Name As In Slack</h1>
-        <input type="text" id="self_name" name="self_name" placeholder="John Doe / Jane Doe" required>
-        <input type="submit" value="Proceed to Rating">
+        <h1>Rate Yourself and 5 other Players</h1>
+
+        <!-- Self-rating -->
+        <h2>Rate Yourself</h2>
+        <select id="self_rating" name="self_rating" required>
+            <option value="" disabled selected>Select rating</option>
+            <option value="1">1 - Just Starting</option>
+            <option value="2">2 - Learning</option>
+            <option value="3">3 - Average</option>
+            <option value="4">4 - Skilled</option>
+            <option value="5">5 - Highly Skilled</option>
+        </select>
+
+        <!-- Rating 5 random participants -->
+        <h2>Rate 5 other Players</h2>
+        <h4>If unsure, go with your gut feeling</h4>
+        {% for participant in random_participants %}
+            <label for="rating_{{ loop.index }}">{{ participant }}</label>
+            <input type="hidden" name="random_player_{{ loop.index }}" value="{{ participant }}">
+            <select id="rating_{{ loop.index }}" name="rating_{{ loop.index }}" required>
+                <option value="" disabled selected>Select rating</option>
+                <option value="1">1 - Just Starting</option>
+                <option value="2">2 - Learning</option>
+                <option value="3">3 - Average</option>
+                <option value="4">4 - Skilled</option>
+                <option value="5">5 - Highly Skilled</option>
+            </select>
+        {% endfor %}
+        
+        <input type="submit" value="Submit">
     </form>
 </body>
 </html>
