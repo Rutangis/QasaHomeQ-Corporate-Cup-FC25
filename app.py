@@ -7,7 +7,7 @@ from statistics import mean, median
 import random
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key'  # Replace with a strong, random key
+app.secret_key = 'FC25Admin123'  # Replace with a strong, random key
 
 ADMIN_PASSWORD = "FC25Admin123"  # Replace with a secure password
 
