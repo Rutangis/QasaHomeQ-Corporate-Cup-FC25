@@ -187,6 +187,7 @@
         <h2>Add New Participant</h2>
         <div class="add-participant-form">
             <form action="{{ url_for('admin_add_participant') }}" method="post">
+                {{ csrf_token() }}
                 <input type="text" name="participant_name" placeholder="Enter participant name" required>
                 <button type="submit" class="add-button">Add Participant</button>
             </form>
@@ -227,6 +228,7 @@
                 <td>{{ participant['name'] }}</td>
                 <td>
                     <form id="participant-update-rating-{{ loop.index }}" action="{{ url_for('admin_update_participant_rating') }}" method="post">
+                        {{ csrf_token() }}
                         <input type="hidden" name="participant_name" value="{{ participant['name'] }}">
                         <input type="number" name="rating" value="{{ participant['rating'] }}" min="1" max="5" required>
                     </form>
@@ -236,6 +238,7 @@
                 </td>
                 <td>
                     <form id="remove-participant-{{ loop.index }}" action="{{ url_for('admin_remove_participant') }}" method="post">
+                        {{ csrf_token() }}
                         <input type="hidden" name="participant_name" value="{{ participant['name'] }}">
                         <button type="button" class="remove-button" onclick="confirmRemove('remove-participant-{{ loop.index }}')">Remove</button>
                     </form>
