@@ -186,6 +186,13 @@
         {% endfor %}
         
         <input type="submit" value="Submit">
+ </body>       
+    <form method="POST" action="{{ url_for('index') }}">
+    {{ form.hidden_tag() }}  <!-- This generates the CSRF token -->
+    <h1>Enter Your Name As In Slack</h1>
+    {{ form.self_name.label }}
+    {{ form.self_name }}
+    <input type="submit" value="Proceed to Rating">
     </form>
 </body>
 </html>
