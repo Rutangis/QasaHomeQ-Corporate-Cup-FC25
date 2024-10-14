@@ -1,1 +1,95 @@
 rater,rated_player,rating
+jonatan branting,Rasmus Driving,4
+jonatan branting,Henrik Brönnegård,1
+jonatan branting,John Bjurulf,2
+jonatan branting,Nahuel Scotti,5
+jonatan branting,Martin Bohman,5
+anton anderzén,Jonatan Branting,3
+anton anderzén,Rasmus Driving,4
+anton anderzén,Henrik Brönnegård,2
+anton anderzén,John Bjurulf,3
+anton anderzén,Nahuel Scotti,4
+magdalena kotołowska,Jonatan Branting,3
+magdalena kotołowska,Eric McG,4
+magdalena kotołowska,Jack Gilberg,3
+magdalena kotołowska,Anton Anderzén,3
+magdalena kotołowska,Hedi Kurda,4
+jack gilberg,Hawaar Kurda,2
+jack gilberg,Benny Schaerlund,2
+jack gilberg,Peter Hedlund,2
+jack gilberg,Martina Lachmann,3
+jack gilberg,Sinéad Eriksson,2
+linnea ahlin,Patryk Pastewski,3
+linnea ahlin,Henry Salomonsson,5
+linnea ahlin,Alexander Liljeblad,5
+linnea ahlin,Oscar Isaksson,4
+linnea ahlin,magdalena kotołowska,1
+martin bohman,linnea ahlin,2
+martin bohman,Christian Avemark,3
+martin bohman,Mattias Gullstrand,4
+martin bohman,Karl Hahtovirta,4
+martin bohman,Alexander Ahlquist,2
+rasmus driving,Amanda Gomez Nähs,1
+rasmus driving,Martin Bohman,5
+rasmus driving,Eric McG,4
+rasmus driving,Jack Gilberg,5
+rasmus driving,Anton Anderzén,3
+henry salomonsson,Hedi Kurda,3
+henry salomonsson,Hawaar Kurda,3
+henry salomonsson,Benny Schaerlund,1
+henry salomonsson,Peter Hedlund,1
+henry salomonsson,Martina Lachmann,1
+alexander liljeblad,Sinéad Eriksson,2
+alexander liljeblad,Patryk Pastewski,2
+alexander liljeblad,Henry Salomonsson,4
+alexander liljeblad,Oscar Isaksson,3
+alexander liljeblad,magdalena kotołowska,2
+amanda gomiz nähs,Sinéad Eriksson,2
+amanda gomiz nähs,Patryk Pastewski,4
+amanda gomiz nähs,Henry Salomonsson,4
+amanda gomiz nähs,Alexander Liljeblad,4
+amanda gomiz nähs,Oscar Isaksson,4
+alexander ahlquist,linnea ahlin,1
+alexander ahlquist,Christian Avemark,1
+alexander ahlquist,Mattias Gullstrand,2
+alexander ahlquist,Karl Hahtovirta,2
+eric mcg,amanda gomiz nähs,3
+eric mcg,alexander ahlquist,3
+eric mcg,Amanda Gomez Nähs,3
+eric mcg,Jonatan Branting,3
+eric mcg,Rasmus Driving,4
+martina lachmann,amanda gomiz nähs,1
+martina lachmann,alexander ahlquist,2
+martina lachmann,Henrik Brönnegård,3
+martina lachmann,John Bjurulf,5
+martina lachmann,Nahuel Scotti,4
+john bjurulf,Martin Bohman,5
+john bjurulf,Eric McG,4
+john bjurulf,Jack Gilberg,4
+john bjurulf,Anton Anderzén,4
+john bjurulf,Hedi Kurda,2
+henrik brönnegård,Hawaar Kurda,3
+henrik brönnegård,Benny Schaerlund,4
+henrik brönnegård,Peter Hedlund,4
+henrik brönnegård,Martina Lachmann,1
+henrik brönnegård,Alexander Liljeblad,5
+hedi,magdalena kotołowska,1
+hedi,linnea ahlin,1
+hedi,Christian Avemark,4
+hedi,Mattias Gullstrand,3
+hedi,Karl Hahtovirta,1
+nahuel scotti,amanda gomiz nähs,1
+nahuel scotti,alexander ahlquist,3
+nahuel scotti,Jonatan Branting,3
+nahuel scotti,Rasmus Driving,4
+nahuel scotti,Henrik Brönnegård,3
+karl hahtovirta,John Bjurulf,3
+karl hahtovirta,Nahuel Scotti,2
+karl hahtovirta,Martin Bohman,4
+karl hahtovirta,Eric McG,3
+karl hahtovirta,Jack Gilberg,4
+hawaar kurda,Anton Anderzén,3
+hawaar kurda,Hedi Kurda,2
+hawaar kurda,Benny Schaerlund,1
+hawaar kurda,Peter Hedlund,1
+hawaar kurda,Martina Lachmann,3
