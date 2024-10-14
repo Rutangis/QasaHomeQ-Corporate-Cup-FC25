@@ -190,8 +190,8 @@ def admin_remove_participant():
 
     return redirect(url_for('admin'))
 
-@app.route('/admin/remove_rating', methods=['POST'])
-def admin_remove_rating():
+@app.route('/admin/remove_given_rating', methods=['POST'])
+def admin_remove_given_rating():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
 
@@ -261,4 +261,11 @@ def compute_summary_statistics():
                 'name': name,
                 'own_rating': own_rating if own_rating else 'N/A',
                 'avg_rating': round(avg_rating, 2) if avg_rating is not None else 'N/A',
-                'med_rating':
+                'med_rating': round(med_rating, 2) if med_rating is not None else 'N/A',
+                'num_ratings': num_ratings
+            })
+
+    return summary
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5001,
