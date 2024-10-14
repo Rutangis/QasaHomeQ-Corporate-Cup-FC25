@@ -176,6 +176,51 @@ def admin_update_given_ratings():
 
     return redirect(url_for('admin'))
 
+# Route to remove a participant (requires login)
+@app.route('/admin/remove_participant', methods=['POST'])
+def admin_remove_participant():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    participant_name = request.form['participant_name']
+
+    # Remove participant from participants.csv
+    with open('participants.csv', 'r') as csvfile:
+        participants = list(csv.DictReader(csvfile))
+
+    with open('participants.csv', 'w', newline='') as csvfile:
+        fieldnames = ['name', 'rating']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for participant in participants:
+            if participant['name'].strip().lower() != participant_name.strip().lower():
+                writer.writerow(participant)
+
+    return redirect(url_for('admin'))
+
+# Route to remove a rating (requires login)
+@app.route('/admin/remove_rating', methods=['POST'])
+def admin_remove_rating():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    rater = request.form['rater']
+    rated_player = request.form['rated_player']
+
+    # Remove rating from ratings.csv
+    with open('ratings.csv', 'r') as csvfile:
+        ratings = list(csv.DictReader(csvfile))
+
+    with open('ratings.csv', 'w', newline='') as csvfile:
+        fieldnames = ['rater', 'rated_player', 'rating']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for rating in ratings:
+            if rating['rater'] != rater or rating['rated_player'] != rated_player:
+                writer.writerow(rating)
+
+    return redirect(url_for('admin'))
+
 # Route to download participants.csv
 @app.route('/download_participants')
 def download_participants():
