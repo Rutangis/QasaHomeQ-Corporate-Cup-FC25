@@ -5,12 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Participant Ratings</title>
     <style>
-        /* Apply custom ball cursor to all interactive elements */
         body, form, input, button, select, textarea, a {
             cursor: url("{{ url_for('static', filename='images/ball-cursor.png') }}") 16 16, default !important;
         }
 
-        /* Background and layout styling */
         body {
             background-image: url("{{ url_for('static', filename='images/background.jpg') }}");
             background-size: cover;
@@ -27,7 +25,6 @@
             padding: 20px;
         }
 
-        /* Container styling */
         .content-container {
             background-color: rgba(255, 255, 255, 0.9);
             padding: 25px;
@@ -38,7 +35,6 @@
             margin-bottom: 25px;
         }
 
-        /* Heading styles */
         h1, h2 {
             text-align: center;
             color: #2c3e50;
@@ -57,7 +53,6 @@
             text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
         }
 
-        /* Download links styling */
         .download-links {
             text-align: center;
             margin-bottom: 20px;
@@ -75,7 +70,6 @@
             color: #2980b9;
         }
 
-        /* Table styling */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -104,7 +98,6 @@
             background-color: #f2f2f2;
         }
 
-        /* Button styling */
         button, .remove-button {
             background-color: #3498db;
             color: white;
@@ -129,7 +122,6 @@
             background-color: #c0392b;
         }
 
-        /* Form to add a new participant */
         .add-participant-form {
             margin-bottom: 25px;
             text-align: center;
@@ -144,7 +136,6 @@
             width: 250px;
         }
 
-        /* Add participant button styling */
         .add-button {
             background-color: #2ecc71;
             color: white;
@@ -161,7 +152,6 @@
             background-color: #27ae60;
         }
 
-        /* Responsive adjustments for smaller screens */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -184,19 +174,6 @@
             }
         }
     </style>
-    <script>
-        function confirmUpdate(formId) {
-            if (confirm('Are you sure you want to update this rating?')) {
-                document.getElementById(formId).submit();
-            }
-        }
-
-        function confirmRemove(formId) {
-            if (confirm('Are you sure you want to remove this participant/rater?')) {
-                document.getElementById(formId).submit();
-            }
-        }
-    </script>
 </head>
 <body>
     <div class="content-container">
@@ -214,6 +191,26 @@
                 <button type="submit" class="add-button">Add Participant</button>
             </form>
         </div>
+
+        <h2>Summary of Participant Ratings</h2>
+        <table>
+            <tr>
+                <th style="width: 20%;">Name</th>
+                <th style="width: 20%;">Own Rating</th>
+                <th style="width: 20%;">Average Rating</th>
+                <th style="width: 20%;">Median Rating</th>
+                <th style="width: 20%;">Number of Ratings</th>
+            </tr>
+            {% for participant in summary %}
+            <tr>
+                <td>{{ participant['name'] }}</td>
+                <td>{{ participant['own_rating'] }}</td>
+                <td>{{ participant['avg_rating'] }}</td>
+                <td>{{ participant['med_rating'] }}</td>
+                <td>{{ participant['num_ratings'] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
 
         <h2>Participant Self-Ratings</h2>
         <table>
@@ -283,5 +280,18 @@
             {% endfor %}
         </table>
     </div>
+    <script>
+        function confirmUpdate(formId) {
+            if (confirm('Are you sure you want to update this rating?')) {
+                document.getElementById(formId).submit();
+            }
+        }
+
+        function confirmRemove(formId) {
+            if (confirm('Are you sure you want to remove this participant/rater?')) {
+                document.getElementById(formId).submit();
+            }
+        }
+    </script>
 </body>
 </html>
