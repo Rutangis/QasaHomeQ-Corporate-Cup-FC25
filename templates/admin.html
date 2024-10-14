@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Participant Ratings</title>
     <style>
+        /* Apply the custom ball cursor to all interactive elements */
         body, form, input, button, select, textarea, a {
             cursor: url("{{ url_for('static', filename='images/ball-cursor.png') }}") 16 16, default !important;
         }
@@ -229,7 +230,7 @@
         <h2>Add New Participant</h2>
         <div class="add-participant-form">
             <form action="{{ url_for('admin_add_participant') }}" method="post">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <!-- Removed CSRF token as security features are simplified -->
                 <input type="text" name="participant_name" placeholder="Enter participant name" required>
                 <button type="submit" class="add-button">Add Participant</button>
             </form>
@@ -270,7 +271,7 @@
                 <td>{{ participant['name'] }}</td>
                 <td>
                     <form id="participant-update-rating-{{ loop.index }}" action="{{ url_for('admin_update_participant_rating') }}" method="post">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <!-- Removed CSRF token as security features are simplified -->
                         <input type="hidden" name="participant_name" value="{{ participant['name'] }}">
                         <input type="number" name="rating" value="{{ participant['rating'] }}" min="1" max="5" required>
                     </form>
@@ -280,7 +281,7 @@
                 </td>
                 <td>
                     <form id="remove-participant-{{ loop.index }}" action="{{ url_for('admin_remove_participant') }}" method="post">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <!-- Removed CSRF token as security features are simplified -->
                         <input type="hidden" name="participant_name" value="{{ participant['name'] }}">
                         <button type="button" class="remove-button" onclick="confirmRemove('remove-participant-{{ loop.index }}')">Remove</button>
                     </form>
@@ -306,7 +307,7 @@
                 <td>{{ rating['rated_player'] }}</td>
                 <td>
                     <form id="rating-update-{{ loop.index }}" action="{{ url_for('admin_update_given_ratings') }}" method="post">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <!-- Removed CSRF token as security features are simplified -->
                         <input type="hidden" name="rater" value="{{ rating['rater'] }}">
                         <input type="hidden" name="rated_player" value="{{ rating['rated_player'] }}">
                         <input type="number" name="rating" value="{{ rating['rating'] }}" min="1" max="5" required>
@@ -317,7 +318,7 @@
                 </td>
                 <td>
                     <form id="remove-rating-{{ loop.index }}" action="{{ url_for('admin_remove_given_rating') }}" method="post">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <!-- Removed CSRF token as security features are simplified -->
                         <input type="hidden" name="rater" value="{{ rating['rater'] }}">
                         <input type="hidden" name="rated_player" value="{{ rating['rated_player'] }}">
                         <button type="button" class="remove-button" onclick="confirmRemove('remove-rating-{{ loop.index }}')">Remove</button>
