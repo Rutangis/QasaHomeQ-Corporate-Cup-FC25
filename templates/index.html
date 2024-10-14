@@ -140,11 +140,11 @@
     </style>
 </head>
 <body>
-    <form action="{{ url_for('index') }}" method="post">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <h1>Enter Your Name As In Slack</h1>
-        <input type="text" id="self_name" name="self_name" placeholder="John Doe / Jane Doe" required>
-        <input type="submit" value="Proceed to Rating">
-    </form>
+   <form action="{{ url_for('index') }}" method="post">
+    {{ csrf_token() }}
+    <h1>Enter Your Name As In Slack</h1>
+    <input type="text" id="self_name" name="self_name" placeholder="John Doe / Jane Doe" required>
+    <input type="submit" value="Proceed to Rating">
+</form>
 </body>
 </html>
