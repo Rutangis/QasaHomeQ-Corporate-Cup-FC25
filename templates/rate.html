@@ -31,27 +31,61 @@
             text-align: center;
             text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.9);
             font-size: 2.5em;
-            margin: 10px 0 20px 0; /* Top, Right, Bottom, Left */
+            margin-top: 0px;
             color: #fff; /* White text for the header */
+            text-shadow: 3px 3px 1px rgba(0, 0, 0, 0.9); /* Horizontal, Vertical, Blur, Color */
+        }
+
+        h2 {
+            font-size: 2.0em;
+            margin-top: 20px; /* Reduces space above the heading */
+            margin-bottom: 5px;
+            text-align: center;
+            color: #fff; /* White text for consistency */
+            text-shadow: 3px 3px 1px rgba(0, 0, 0, 0.9); /* Horizontal, Vertical, Blur, Color */
+        }
+
+        h4 {
+            font-size: 1.0em;
+            margin-top: 0; /* Reduces space above the heading */
+            margin-bottom: 20px;
+            text-align: center;
+            color: #fff; /* White text for consistency */
             text-shadow: 3px 3px 1px rgba(0, 0, 0, 0.9); /* Horizontal, Vertical, Blur, Color */
         }
 
         /* Form container styling */
         form {
             background-color: rgba(0, 0, 0, 0.7);
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 700px;
-            width: calc(100% - 40px); /* Ensure the form is responsive, with padding space */
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 350px;
+            margin: 170px auto;
             box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.3);
+            width: calc(100% - 40px); /* Responsive width */
         }
 
         /* Label styling */
         label {
-            display: block;
-            font-size: 1.2em;
-            margin-bottom: 8px;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
             color: #fff; /* White text for form labels */
+            display: block; /* Ensure labels take full width */
+            text-shadow: 3px 3px 1px rgba(0, 0, 0, 0.9); /* Horizontal, Vertical, Blur, Color */
+        }
+
+        /* Text input styling */
+        input[type="text"] {
+            width: 92.3%;
+            padding: 12px;
+            margin: 0px 0 20px 0; /* Top, Right, Bottom, Left */
+            border-radius: 8px;
+            border: 1px solid #ccc; /* Light border to distinguish the input field */
+            font-size: 1.3em;
+            color: #010101; /* Text color inside input */
+            background-color: #f5f5f5; /* Light grey background for input box */
+            text-shadow: 3px 3px 1px rgba(0, 0, 0, 0.9); /* Horizontal, Vertical, Blur, Color */
         }
 
         /* Select box styling */
@@ -63,7 +97,7 @@
             border-radius: 8px;
             border: none;
             background-color: rgba(255, 255, 255, 0.9); /* Same background as text input */
-            font-size: 1em;
+            font-size: 1.3em;
             color: #333;
             appearance: none; /* Remove default dropdown arrow */
             -webkit-appearance: none; /* Remove default dropdown arrow in Safari */
@@ -71,7 +105,7 @@
         }
 
         /* Focus styling */
-        select:focus {
+        select:focus, input[type="text"]:focus {
             outline: none;
             box-shadow: 5px 5px 30px rgba(50, 205, 50, 0.7); /* Light green glow on focus */
         }
@@ -95,11 +129,10 @@
             width: 100%;
             height: 60px;
             transition: background-color 0.3s ease; /* Smooth transition on hover */
-            cursor: pointer;
         }
 
         input[type="submit"]:hover {
-            background-color: #28a428;
+            background-color: #00f300;
         }
 
         /* Responsive adjustments for smaller screens */
@@ -109,12 +142,21 @@
             }
 
             form {
-                padding: 10px;
+                padding: 20px;
                 max-width: 90vw;
+                margin: 50px auto;
             }
 
             h1 {
                 font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            label {
+                font-size: 1.2em;
             }
 
             input[type="submit"] {
@@ -126,14 +168,12 @@
 </head>
 <body>
     <form action="{{ url_for('rate', self_name=self_name) }}" method="post">
-        <!-- Removed CSRF token as security features are simplified -->
-        <h1>Rate Yourself and 5 Other Players</h1>
+        <h1>Rate Yourself and 5 other Players</h1>
 
         <!-- Self-rating -->
         <h2>Rate Yourself</h2>
-        <label for="self_rating">Your Rating:</label>
         <select id="self_rating" name="self_rating" required>
-            <option value="" disabled selected>Select rating</option>
+            <option value="" disabled selected>Select rating</option> <!-- Placeholder -->
             <option value="1">1 - Just Starting</option>
             <option value="2">2 - Learning</option>
             <option value="3">3 - Average</option>
@@ -142,24 +182,22 @@
         </select>
 
         <!-- Rating 5 random participants -->
-        <h2>Rate 5 Other Players</h2>
+        <h2>Rate 5 other Players</h2>
         <h4>If unsure, go with your gut feeling</h4>
         {% for participant in random_participants %}
-            <div class="player-rating">
-                <label for="rating_{{ loop.index }}">Player {{ loop.index }}: {{ participant }}</label>
-                <input type="hidden" name="random_player_{{ loop.index }}" value="{{ participant }}">
-                <select id="rating_{{ loop.index }}" name="rating_{{ loop.index }}" required>
-                    <option value="" disabled selected>Select rating</option>
-                    <option value="1">1 - Just Starting</option>
-                    <option value="2">2 - Learning</option>
-                    <option value="3">3 - Average</option>
-                    <option value="4">4 - Skilled</option>
-                    <option value="5">5 - Highly Skilled</option>
-                </select>
-            </div>
+            <label for="rating_{{ loop.index }}">{{ participant }}</label>
+            <input type="hidden" name="random_player_{{ loop.index }}" value="{{ participant }}">
+            <select id="rating_{{ loop.index }}" name="rating_{{ loop.index }}" required>
+                <option value="" disabled selected>Select rating</option> <!-- Placeholder -->
+                <option value="1">1 - Just Starting</option>
+                <option value="2">2 - Learning</option>
+                <option value="3">3 - Average</option>
+                <option value="4">4 - Skilled</option>
+                <option value="5">5 - Highly Skilled</option>
+            </select>
         {% endfor %}
         
-        <input type="submit" value="Submit Ratings">
+        <input type="submit" value="Submit">
     </form>
 </body>
 </html>
