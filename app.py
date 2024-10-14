@@ -147,6 +147,29 @@ def admin_update_participant_rating():
 
     return redirect(url_for('admin'))
 
+@app.route('/admin/update_given_ratings', methods=['POST'])
+def admin_update_given_ratings():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    rater = request.form['rater']
+    rated_player = request.form['rated_player']
+    new_rating = request.form['rating']
+
+    with open('ratings.csv', 'r') as csvfile:
+        ratings = list(csv.DictReader(csvfile))
+
+    with open('ratings.csv', 'w', newline='') as csvfile:
+        fieldnames = ['rater', 'rated_player', 'rating']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for rating in ratings:
+            if rating['rater'] == rater and rating['rated_player'] == rated_player:
+                rating['rating'] = new_rating
+            writer.writerow(rating)
+
+    return redirect(url_for('admin'))
+
 @app.route('/admin/remove_participant', methods=['POST'])
 def admin_remove_participant():
     if not session.get('admin_logged_in'):
