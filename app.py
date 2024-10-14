@@ -5,7 +5,6 @@ import random
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, SubmitField
 from wtforms.validators import DataRequired
-from statistics import mean, median
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)  # Secret key for session management, needed for Flask sessions and CSRF protection
@@ -19,59 +18,84 @@ def get_rating_counts():
     with open('ratings.csv', 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            rated_player = row['rated_player']
+            rated_player = row['rated_player']  # Get the rated player from the row
             if rated_player not in ratings_counter:
-                ratings_counter[rated_player] = 0
-            ratings_counter[rated_player] += 1
+                ratings_counter[rated_player] = 0  # Initialize if not present
+            ratings_counter[rated_player] += 1  # Increment the count
     return ratings_counter
-
-# Function to compute summary statistics for each participant
-def compute_summary_statistics():
-    ratings_data = {}
-    
-    # Read all ratings into a dictionary
-    with open('ratings.csv', 'r') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            rated_player = row['rated_player']
-            rating = int(row['rating'])
-            if rated_player not in ratings_data:
-                ratings_data[rated_player] = []
-            ratings_data[rated_player].append(rating)
-    
-    # Calculate summary statistics (average, median, number of ratings)
-    summary = []
-    with open('participants.csv', 'r') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            name = row['name']
-            own_rating = row.get('rating', None)
-            if name in ratings_data:
-                avg_rating = mean(ratings_data[name])
-                med_rating = median(ratings_data[name])
-                num_ratings = len(ratings_data[name])
-            else:
-                avg_rating = None
-                med_rating = None
-                num_ratings = 0
-            
-            summary.append({
-                'name': name,
-                'own_rating': own_rating if own_rating else 'N/A',
-                'avg_rating': round(avg_rating, 2) if avg_rating is not None else 'N/A',
-                'med_rating': round(med_rating, 2) if med_rating is not None else 'N/A',
-                'num_ratings': num_ratings
-            })
-    
-    # Sort summary by average rating in descending order
-    summary.sort(key=lambda x: x['avg_rating'] if isinstance(x['avg_rating'], (int, float)) else -1, reverse=True)
-    
-    return summary
 
 # Flask-WTF form for admin login
 class AdminLoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
+
+# Route to enter name and proceed to rate others
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        # Get the name and redirect to the rate page
+        self_name = request.form['self_name'].strip().lower()
+        return redirect(url_for('rate', self_name=self_name))
+    return render_template('index.html')
+
+# Route to display the form with 5 random participants, excluding the current user
+@app.route('/rate/<self_name>', methods=['GET', 'POST'])
+def rate(self_name):
+    if request.method == 'POST':
+        # Handle rating submission
+        self_rating = request.form['self_rating']
+
+        # Update or add the self-rating in `participants.csv`
+        with open('participants.csv', 'r') as csvfile:
+            participants = list(csv.DictReader(csvfile))
+
+        with open('participants.csv', 'w', newline='') as csvfile:
+            fieldnames = ['name', 'rating']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            updated = False
+            for participant in participants:
+                if participant['name'].strip().lower() == self_name:
+                    participant['rating'] = self_rating
+                    updated = True
+                writer.writerow(participant)
+            if not updated:
+                writer.writerow({'name': self_name, 'rating': self_rating})
+
+        # Save the ratings for the 5 random participants in `ratings.csv`
+        with open('ratings.csv', 'a', newline='') as csvfile:
+            fieldnames = ['rater', 'rated_player', 'rating']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            for i in range(1, 6):
+                random_player = request.form[f'random_player_{i}']
+                random_rating = request.form[f'rating_{i}']
+                writer.writerow({'rater': self_name, 'rated_player': random_player, 'rating': random_rating})
+
+        return redirect(url_for('thank_you'))
+
+    # If GET request, display the rating form
+    participants = []
+    ratings_counter = get_rating_counts()
+
+    # Read participants from CSV and filter out the current user
+    with open('participants.csv', 'r') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if row['name'].strip().lower() != self_name:
+                participants.append(row['name'])
+
+    # Sort participants by how often they've been rated (ascending)
+    sorted_participants = sorted(participants, key=lambda x: ratings_counter.get(x, 0))
+
+    # Choose the 5 participants who have been rated the least (if there are at least 5)
+    random_participants = sorted_participants[:5] if len(sorted_participants) >= 5 else sorted_participants
+
+    return render_template('rate.html', random_participants=random_participants, self_name=self_name)
+
+# Route to display a "Thank You" page after submission
+@app.route('/thank_you')
+def thank_you():
+    return render_template('thank_you.html')
 
 # Admin login route
 @app.route('/admin/login', methods=['GET', 'POST'])
@@ -106,10 +130,7 @@ def admin():
         for row in reader:
             ratings.append(row)
 
-    # Compute summary statistics for each participant
-    summary = compute_summary_statistics()
-
-    return render_template('admin.html', participants=participants, ratings=ratings, summary=summary)
+    return render_template('admin.html', participants=participants, ratings=ratings)
 
 # Route to add a new participant (requires login)
 @app.route('/admin/add_participant', methods=['POST'])
@@ -176,6 +197,57 @@ def admin_update_given_ratings():
 
     return redirect(url_for('admin'))
 
+# Route to remove a participant (requires login)
+@app.route('/admin/remove_participant', methods=['POST'])
+def admin_remove_participant():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    participant_name = request.form['participant_name']
+
+    # Remove participant from participants.csv
+    with open('participants.csv', 'r') as csvfile:
+        participants = list(csv.DictReader(csvfile))
+
+    with open('participants.csv', 'w', newline='') as csvfile:
+        fieldnames = ['name', 'rating']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for participant in participants:
+            if participant['name'].strip().lower() != participant_name.strip().lower():
+                writer.writerow(participant)
+
+    return redirect(url_for('admin'))
+
+# Route to remove a rating (requires login)
+@app.route('/admin/remove_rating', methods=['POST'])
+def admin_remove_rating():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    rater = request.form['rater']
+    rated_player = request.form['rated_player']
+
+    # Remove rating from ratings.csv
+    with open('ratings.csv', 'r') as csvfile:
+        ratings = list(csv.DictReader(csvfile))
+
+    with open('ratings.csv', 'w', newline='') as csvfile:
+        fieldnames = ['rater', 'rated_player', 'rating']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for rating in ratings:
+            if rating['rater'] != rater or rating['rated_player'] != rated_player:
+                writer.writerow(rating)
+
+    return redirect(url_for('admin'))
+
+# Route to logout admin
+@app.route('/admin/logout')
+def admin_logout():
+    session.pop('admin_logged_in', None)
+    return redirect(url_for('admin_login'))
+
 # Route to download participants.csv
 @app.route('/download_participants')
 def download_participants():
@@ -185,12 +257,6 @@ def download_participants():
 @app.route('/download_ratings')
 def download_ratings():
     return send_file('ratings.csv', as_attachment=True)
-
-# Route to logout admin
-@app.route('/admin/logout')
-def admin_logout():
-    session.pop('admin_logged_in', None)
-    return redirect(url_for('admin_login'))
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5001, debug=True)
