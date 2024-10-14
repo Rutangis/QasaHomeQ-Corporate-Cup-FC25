@@ -9,7 +9,7 @@ from flask_wtf.csrf import CSRFProtect
 
 app = Flask(__name__)
 # Set the secret key to a fixed value. In production, use environment variables.
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-fixed-secret-key')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 
 # Initialize CSRF protection
 csrf = CSRFProtect(app)
