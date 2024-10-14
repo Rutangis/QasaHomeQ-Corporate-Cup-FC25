@@ -1,24 +1,15 @@
+# app.py
+
 from flask import Flask, render_template, request, redirect, url_for, send_file, session, flash
 import csv
 import os
-from flask_wtf import FlaskForm
-from wtforms import PasswordField, SubmitField
-from wtforms.validators import DataRequired
 from statistics import mean, median
-from flask_wtf.csrf import CSRFProtect
+import random
 
 app = Flask(__name__)
-# Set the secret key to a fixed value. In production, use environment variables.
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-
-# Initialize CSRF protection
-csrf = CSRFProtect(app)
+app.secret_key = 'your-secret-key'  # Simple secret key for session management
 
 ADMIN_PASSWORD = "FC25Admin123"
-
-class AdminLoginForm(FlaskForm):
-    password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Login')
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -32,40 +23,49 @@ def rate(self_name):
     if request.method == 'POST':
         self_rating = request.form['self_rating']
 
-        with open('participants.csv', 'r') as csvfile:
-            participants = list(csv.DictReader(csvfile))
+        # Update participants.csv
+        if os.path.exists('participants.csv'):
+            with open('participants.csv', 'r') as csvfile:
+                participants = list(csv.DictReader(csvfile))
+        else:
+            participants = []
+
+        updated = False
+        for participant in participants:
+            if participant['name'].strip().lower() == self_name:
+                participant['rating'] = self_rating
+                updated = True
+
+        if not updated:
+            participants.append({'name': self_name, 'rating': self_rating})
 
         with open('participants.csv', 'w', newline='') as csvfile:
             fieldnames = ['name', 'rating']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
-            updated = False
-            for participant in participants:
-                if participant['name'].strip().lower() == self_name:
-                    participant['rating'] = self_rating
-                    updated = True
-                writer.writerow(participant)
-            if not updated:
-                writer.writerow({'name': self_name, 'rating': self_rating})
+            writer.writerows(participants)
 
+        # Append ratings to ratings.csv
         with open('ratings.csv', 'a', newline='') as csvfile:
             fieldnames = ['rater', 'rated_player', 'rating']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             for i in range(1, 6):
-                random_player = request.form[f'random_player_{i}']
-                random_rating = request.form[f'rating_{i}']
-                writer.writerow({'rater': self_name, 'rated_player': random_player, 'rating': random_rating})
+                random_player = request.form.get(f'random_player_{i}')
+                random_rating = request.form.get(f'rating_{i}')
+                if random_player and random_rating:
+                    writer.writerow({'rater': self_name, 'rated_player': random_player, 'rating': random_rating})
 
         return redirect(url_for('thank_you'))
 
     participants = []
     ratings_counter = get_rating_counts()
 
-    with open('participants.csv', 'r') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            if row['name'].strip().lower() != self_name:
-                participants.append(row['name'])
+    if os.path.exists('participants.csv'):
+        with open('participants.csv', 'r') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                if row['name'].strip().lower() != self_name:
+                    participants.append(row['name'])
 
     sorted_participants = sorted(participants, key=lambda x: ratings_counter.get(x, 0))
     random_participants = sorted_participants[:5] if len(sorted_participants) >= 5 else sorted_participants
@@ -78,14 +78,14 @@ def thank_you():
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
-    form = AdminLoginForm()
-    if form.validate_on_submit():
-        if form.password.data.strip() == ADMIN_PASSWORD:
+    if request.method == 'POST':
+        password = request.form['password']
+        if password.strip() == ADMIN_PASSWORD:
             session['admin_logged_in'] = True
             return redirect(url_for('admin'))
         else:
             flash('Incorrect password. Please try again.', 'danger')
-    return render_template('admin_login.html', form=form)
+    return render_template('admin_login.html')
 
 @app.route('/admin')
 def admin():
@@ -96,15 +96,15 @@ def admin():
         participants = []
         ratings = []
 
-        with open('participants.csv', 'r') as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                participants.append(row)
+        if os.path.exists('participants.csv'):
+            with open('participants.csv', 'r') as csvfile:
+                reader = csv.DictReader(csvfile)
+                participants = list(reader)
 
-        with open('ratings.csv', 'r') as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                ratings.append(row)
+        if os.path.exists('ratings.csv'):
+            with open('ratings.csv', 'r') as csvfile:
+                reader = csv.DictReader(csvfile)
+                ratings = list(reader)
 
         summary = compute_summary_statistics()
 
@@ -135,8 +135,11 @@ def admin_update_participant_rating():
     participant_name = request.form['participant_name']
     new_rating = request.form['rating']
 
-    with open('participants.csv', 'r') as csvfile:
-        participants = list(csv.DictReader(csvfile))
+    if os.path.exists('participants.csv'):
+        with open('participants.csv', 'r') as csvfile:
+            participants = list(csv.DictReader(csvfile))
+    else:
+        participants = []
 
     with open('participants.csv', 'w', newline='') as csvfile:
         fieldnames = ['name', 'rating']
@@ -158,8 +161,11 @@ def admin_update_given_ratings():
     rated_player = request.form['rated_player']
     new_rating = request.form['rating']
 
-    with open('ratings.csv', 'r') as csvfile:
-        ratings = list(csv.DictReader(csvfile))
+    if os.path.exists('ratings.csv'):
+        with open('ratings.csv', 'r') as csvfile:
+            ratings = list(csv.DictReader(csvfile))
+    else:
+        ratings = []
 
     with open('ratings.csv', 'w', newline='') as csvfile:
         fieldnames = ['rater', 'rated_player', 'rating']
@@ -179,8 +185,11 @@ def admin_remove_participant():
 
     participant_name = request.form['participant_name']
 
-    with open('participants.csv', 'r') as csvfile:
-        participants = list(csv.DictReader(csvfile))
+    if os.path.exists('participants.csv'):
+        with open('participants.csv', 'r') as csvfile:
+            participants = list(csv.DictReader(csvfile))
+    else:
+        participants = []
 
     with open('participants.csv', 'w', newline='') as csvfile:
         fieldnames = ['name', 'rating']
@@ -200,8 +209,11 @@ def admin_remove_given_rating():
     rater = request.form['rater']
     rated_player = request.form['rated_player']
 
-    with open('ratings.csv', 'r') as csvfile:
-        ratings = list(csv.DictReader(csvfile))
+    if os.path.exists('ratings.csv'):
+        with open('ratings.csv', 'r') as csvfile:
+            ratings = list(csv.DictReader(csvfile))
+    else:
+        ratings = []
 
     with open('ratings.csv', 'w', newline='') as csvfile:
         fieldnames = ['rater', 'rated_player', 'rating']
@@ -237,20 +249,25 @@ def compute_summary_statistics():
     participants = []
     ratings_data = {}
 
-    with open('participants.csv', 'r') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            participants.append(row)
+    if os.path.exists('participants.csv'):
+        with open('participants.csv', 'r') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                participants.append(row)
 
-    with open('ratings.csv', 'r') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            rated_player = row['rated_player']
-            if rated_player not in ratings_data:
-                ratings_data[rated_player] = []
-            ratings_data[rated_player].append(int(row['rating']))
+    if os.path.exists('ratings.csv'):
+        with open('ratings.csv', 'r') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                rated_player = row['rated_player']
+                try:
+                    rating = int(row['rating'])
+                    if rated_player not in ratings_data:
+                        ratings_data[rated_player] = []
+                    ratings_data[rated_player].append(rating)
+                except ValueError:
+                    continue  # Skip invalid ratings
 
-    # Calculate summary statistics (average, median, number of ratings)
     summary = []
     for participant in participants:
         name = participant['name']
@@ -263,7 +280,7 @@ def compute_summary_statistics():
             avg_rating = None
             med_rating = None
             num_ratings = 0
-        
+
         summary.append({
             'name': name,
             'own_rating': own_rating if own_rating else 'N/A',
@@ -271,22 +288,20 @@ def compute_summary_statistics():
             'med_rating': round(med_rating, 2) if med_rating is not None else 'N/A',
             'num_ratings': num_ratings
         })
-    
+
     # Sort summary by average rating in descending order
     summary.sort(key=lambda x: x['avg_rating'] if isinstance(x['avg_rating'], (int, float)) else -1, reverse=True)
-    
+
     return summary
 
 def get_rating_counts():
     ratings_counter = {}
-    with open('ratings.csv', 'r') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            rated_player = row['rated_player']
-            if rated_player in ratings_counter:
-                ratings_counter[rated_player] += 1
-            else:
-                ratings_counter[rated_player] = 1
+    if os.path.exists('ratings.csv'):
+        with open('ratings.csv', 'r') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                rated_player = row['rated_player']
+                ratings_counter[rated_player] = ratings_counter.get(rated_player, 0) + 1
     return ratings_counter
 
 if __name__ == "__main__":
