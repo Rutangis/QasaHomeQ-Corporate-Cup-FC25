@@ -8,8 +8,10 @@ from statistics import mean, median
 from flask_wtf.csrf import CSRFProtect
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+# Set the secret key to a fixed value. In production, use environment variables.
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-fixed-secret-key')
 
+# Initialize CSRF protection
 csrf = CSRFProtect(app)
 
 ADMIN_PASSWORD = "FC25Admin123"
