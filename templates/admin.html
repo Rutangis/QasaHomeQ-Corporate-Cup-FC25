@@ -172,6 +172,15 @@
             button, .remove-button, .add-button {
                 font-size: 0.9em;
             }
+
+            .add-participant-form input[type="text"] {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .add-participant-form button {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -264,6 +273,7 @@
                 <td>{{ rating['rated_player'] }}</td>
                 <td>
                     <form id="rating-update-{{ loop.index }}" action="{{ url_for('admin_update_given_ratings') }}" method="post">
+                        {{ csrf_token() }}
                         <input type="hidden" name="rater" value="{{ rating['rater'] }}">
                         <input type="hidden" name="rated_player" value="{{ rating['rated_player'] }}">
                         <input type="number" name="rating" value="{{ rating['rating'] }}" min="1" max="5" required>
@@ -274,6 +284,7 @@
                 </td>
                 <td>
                     <form id="remove-rating-{{ loop.index }}" action="{{ url_for('admin_remove_given_rating') }}" method="post">
+                        {{ csrf_token() }}
                         <input type="hidden" name="rater" value="{{ rating['rater'] }}">
                         <input type="hidden" name="rated_player" value="{{ rating['rated_player'] }}">
                         <button type="button" class="remove-button" onclick="confirmRemove('remove-rating-{{ loop.index }}')">Remove</button>
@@ -283,15 +294,25 @@
             {% endfor %}
         </table>
     </div>
+
+    <!-- JavaScript Functions -->
     <script>
+        /**
+         * Prompts the user for confirmation before submitting a form to update data.
+         * @param {string} formId - The ID of the form to submit.
+         */
         function confirmUpdate(formId) {
-            if (confirm('Are you sure you want to update this rating?')) {
+            if (confirm("Are you sure you want to update this rating?")) {
                 document.getElementById(formId).submit();
             }
         }
 
+        /**
+         * Prompts the user for confirmation before submitting a form to remove data.
+         * @param {string} formId - The ID of the form to submit.
+         */
         function confirmRemove(formId) {
-            if (confirm('Are you sure you want to remove this participant/rater?')) {
+            if (confirm("Are you sure you want to remove this participant/rater?")) {
                 document.getElementById(formId).submit();
             }
         }
