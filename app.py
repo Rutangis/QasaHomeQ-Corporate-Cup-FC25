@@ -9,10 +9,10 @@ import statistics
 from collections import defaultdict
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)  # Consider using a persistent secret key in production
+app.secret_key = os.getenv('SECRET_KEY', os.urandom(24))  # Use environment variable for production
 
-# Admin password (consider using environment variables for security)
-ADMIN_PASSWORD = "FC25Admin123"
+# Admin password (use environment variables for security in production)
+ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'FC25Admin123')
 
 # Function to count ratings per participant
 def get_rating_counts():
@@ -26,7 +26,7 @@ def get_rating_counts():
     with open('ratings.csv', 'r', newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            rated_player = row['rated_player'].strip().lower()  # Normalize to lowercase for consistency
+            rated_player = row['rated_player'].strip().lower()  # Normalize to lowercase
             if rated_player not in ratings_counter:
                 ratings_counter[rated_player] = 0
             ratings_counter[rated_player] += 1
@@ -100,6 +100,40 @@ def calculate_ratings_statistics():
     )
 
     return statistics_list_sorted
+
+# Helper function to assign teams
+def assign_teams(participants, num_teams=4):
+    """
+    Assigns participants to teams aiming for balanced total average ratings.
+
+    :param participants: List of dictionaries with 'name' and 'average' keys
+    :param num_teams: Number of teams to create
+    :return: List of teams, each team is a list of participant names
+    """
+    # Filter out participants without an average rating
+    rated_participants = [p for p in participants if isinstance(p['average'], float)]
+    unrated_participants = [p for p in participants if not isinstance(p['average'], float)]
+
+    # Sort participants by average rating descending
+    sorted_participants = sorted(rated_participants, key=lambda x: x['average'], reverse=True)
+
+    # Initialize teams
+    teams = [[] for _ in range(num_teams)]
+    team_totals = [0.0 for _ in range(num_teams)]
+
+    # Assign participants to teams using a greedy algorithm
+    for participant in sorted_participants:
+        # Assign to the team with the current lowest total
+        min_team_index = team_totals.index(min(team_totals))
+        teams[min_team_index].append(participant['name'])
+        team_totals[min_team_index] += participant['average']
+
+    # Optionally, distribute unrated participants randomly
+    for participant in unrated_participants:
+        random_team_index = random.randint(0, num_teams - 1)
+        teams[random_team_index].append(participant['name'])
+
+    return teams
 
 # Route to enter name and proceed to rate others
 @app.route('/', methods=['GET', 'POST'])
@@ -240,11 +274,15 @@ def admin():
     # Calculate ratings statistics
     ratings_statistics = calculate_ratings_statistics()
 
+    # Assign teams
+    teams = assign_teams(ratings_statistics, num_teams=4)  # You can change the number of teams here
+
     return render_template(
         'admin.html',
         participants=participants,
         ratings=ratings,
-        ratings_statistics=ratings_statistics  # Pass the statistics to the template
+        ratings_statistics=ratings_statistics,  # Pass the statistics to the template
+        teams=teams  # Pass the generated teams to the template
     )
 
 # Route to add a new participant (requires login)
