@@ -107,7 +107,7 @@ def assign_teams(participants):
     Assigns participants into teams of 2, aiming for balanced total average ratings.
 
     :param participants: List of dictionaries with 'name' and 'average' keys
-    :return: List of teams, each team is a list of 2 participant names
+    :return: List of teams, each team is a list of 2 participant names and combined average rating
     """
     # Filter out participants without an average rating
     rated_participants = [p for p in participants if isinstance(p['average'], float)]
@@ -120,23 +120,25 @@ def assign_teams(participants):
     while len(sorted_participants) >= 2:
         high = sorted_participants.pop(0)  # Highest rated
         low = sorted_participants.pop(-1)  # Lowest rated
-        teams.append([high['name'], low['name']])
+        combined_avg = round((high['average'] + low['average']) / 2, 2)  # Calculate combined average
+        teams.append({'members': [high['name'], low['name']], 'combined_avg': combined_avg})
 
     # If there's an odd participant left, pair them randomly with an unrated participant
     if sorted_participants and unrated_participants:
         remaining = sorted_participants.pop(0)
         random_unrated = unrated_participants.pop(0)
-        teams.append([remaining['name'], random_unrated])
+        teams.append({'members': [remaining['name'], random_unrated], 'combined_avg': 'N/A'})
     elif sorted_participants:
         # If no unrated participants, pair the last two
         if len(sorted_participants) >= 2:
             team = [sorted_participants.pop(0)['name'], sorted_participants.pop(-1)['name']]
-            teams.append(team)
+            combined_avg = round(sum([p['average'] for p in team]) / 2, 2)
+            teams.append({'members': team, 'combined_avg': combined_avg})
     elif unrated_participants:
         # Pair remaining unrated participants randomly
         while len(unrated_participants) >= 2:
             team = [unrated_participants.pop(0), unrated_participants.pop(0)]
-            teams.append(team)
+            teams.append({'members': team, 'combined_avg': 'N/A'})
 
     return teams
 
