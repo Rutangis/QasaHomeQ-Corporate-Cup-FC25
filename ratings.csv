@@ -1,13 +1,13 @@
 rater,rated_player,rating
 jonatan branting,Rasmus Driving,4
 jonatan branting,Henrik Brönnegård,1
-jonatan branting,John Bjurulf,2
+jonatan branting,John Bjurulf,5
 jonatan branting,Nahuel Scotti,5
 jonatan branting,Martin Bohman,5
 anton anderzén,Jonatan Branting,3
 anton anderzén,Rasmus Driving,4
 anton anderzén,Henrik Brönnegård,2
-anton anderzén,John Bjurulf,3
+anton anderzén,John Bjurulf,4
 anton anderzén,Nahuel Scotti,4
 magdalena kotołowska,Jonatan Branting,3
 magdalena kotołowska,Eric McG,4
@@ -20,7 +20,7 @@ jack gilberg,Peter Hedlund,2
 jack gilberg,Martina Lachmann,3
 jack gilberg,Sinéad Eriksson,2
 linnea ahlin,Patryk Pastewski,3
-linnea ahlin,Henry Salomonsson,5
+linnea ahlin,Henry Salomonsson,4
 linnea ahlin,Alexander Liljeblad,5
 linnea ahlin,Oscar Isaksson,4
 linnea ahlin,magdalena kotołowska,1
@@ -51,7 +51,7 @@ amanda gomiz nähs,Alexander Liljeblad,4
 amanda gomiz nähs,Oscar Isaksson,4
 alexander ahlquist,linnea ahlin,1
 alexander ahlquist,Christian Avemark,1
-alexander ahlquist,Mattias Gullstrand,2
+alexander ahlquist,Mattias Gullstrand,3
 alexander ahlquist,Karl Hahtovirta,2
 eric mcg,amanda gomiz nähs,3
 eric mcg,alexander ahlquist,3
@@ -83,7 +83,7 @@ nahuel scotti,alexander ahlquist,3
 nahuel scotti,Jonatan Branting,3
 nahuel scotti,Rasmus Driving,4
 nahuel scotti,Henrik Brönnegård,3
-karl hahtovirta,John Bjurulf,3
+karl hahtovirta,John Bjurulf,4
 karl hahtovirta,Nahuel Scotti,2
 karl hahtovirta,Martin Bohman,4
 karl hahtovirta,Eric McG,3
@@ -101,8 +101,8 @@ peter hedlund,Alexander Liljeblad,3
 Benny Schaerlund,Hawaar Kurda,1
 Benny Schaerlund,Sinéad Eriksson,3
 Benny Schaerlund,Patryk Pastewski,3
-Benny Schaerlund,Henry Salomonsson,5
-Benny Schaerlund,Alexander Liljeblad,3
+Benny Schaerlund,Henry Salomonsson,4
+Benny Schaerlund,Alexander Liljeblad,4
 mattias gullstrand,Oscar Isaksson,4
 mattias gullstrand,magdalena kotołowska,1
 mattias gullstrand,linnea ahlin,1
