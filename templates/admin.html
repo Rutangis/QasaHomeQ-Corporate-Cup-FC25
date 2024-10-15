@@ -426,19 +426,21 @@
                                 {% endfor %}
                             </ul>
                         </td>
-                        <td>
+                       <td>
                             {% set total = 0 %}
+                            {% set count = 0 %}
                             {% for member in team %}
                                 {% for stat in ratings_statistics %}
-                                    {% if stat.name | lower | trim == member | lower | trim %}
+                                    {% if stat.name == member %}
                                         {% if stat.average != 'N/A' and stat.average != '' %}
                                             {% set total = total + (stat.average | float) %}
+                                            {% set count = count + 1 %}
                                         {% endif %}
                                     {% endif %}
                                 {% endfor %}
                             {% endfor %}
-                            {% if total > 0 %}
-                                {{ "%.2f"|format(total) }}
+                            {% if count > 0 %}
+                                {{ "%.2f"|format(total / count) }}
                             {% else %}
                                 N/A
                             {% endif %}
