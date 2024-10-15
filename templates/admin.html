@@ -430,7 +430,7 @@
                             {% set total = 0 %}
                             {% for member in team %}
                                 {% for stat in ratings_statistics %}
-                                    {% if stat.name | lower | strip == member | lower | strip %}
+                                    {% if stat.name | lower | trim == member | lower | trim %}
                                         {% if stat.average != 'N/A' and stat.average != '' %}
                                             {% set total = total + (stat.average | float) %}
                                         {% endif %}
