@@ -426,12 +426,12 @@
                                 {% endfor %}
                             </ul>
                         </td>
-                       <td>
+                        <td>
                             {% set total = 0 %}
                             {% set count = 0 %}
                             {% for member in team %}
                                 {% for stat in ratings_statistics %}
-                                    {% if stat.name == member %}
+                                    {% if stat.name.strip().lower() == member.strip().lower() %}
                                         {% if stat.average != 'N/A' and stat.average != '' %}
                                             {% set total = total + (stat.average | float) %}
                                             {% set count = count + 1 %}
@@ -449,6 +449,41 @@
                     {% endfor %}
                 </table>
             {% endif %}
+        </div>
+
+        <!-- Player Statistics Section -->
+        <div class="player-statistics">
+            <h2>Player Statistics</h2>
+            <table class="ratings-overview-table">
+                <tr>
+                    <th>No.</th>
+                    <th>Name</th>
+                    <th>Average Rating</th>
+                    <th>Median Rating</th>
+                    <th>Number of Ratings</th>
+                </tr>
+                {% for player_stat in ratings_statistics %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ player_stat['name'] }}</td>
+                    <td>
+                        {% if player_stat['average'] != 'N/A' %}
+                            {{ "%.2f"|format(player_stat['average']) }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if player_stat['median'] != 'N/A' %}
+                            {{ "%.2f"|format(player_stat['median']) }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>{{ player_stat['count'] }}</td>
+                </tr>
+                {% endfor %}
+            </table>
         </div>
 
         <!-- Logout Button -->
