@@ -403,53 +403,35 @@
         </table>
 
         <!-- Team Assignment Section -->
-        <div class="team-assignment">
-            <h2>Team Assignments (Teams of 2)</h2>
-            <form action="{{ url_for('admin') }}" method="get">
-                <button type="submit" class="generate-teams-button" onclick="return confirmGenerateTeams()">Generate Teams</button>
-            </form>
+<div class="team-assignment">
+    <h2>Team Assignments (Teams of 2)</h2>
+    <form action="{{ url_for('admin') }}" method="get">
+        <button type="submit" class="generate-teams-button" onclick="return confirmGenerateTeams()">Generate Teams</button>
+    </form>
 
-            {% if teams %}
-                <table class="team-table">
-                    <tr>
-                        <th>Team No.</th>
-                        <th>Members</th>
-                        <th>Combined Average Rating</th>
-                    </tr>
-                    {% for team in teams %}
-                    <tr>
-                        <td>Team {{ loop.index }}</td>
-                        <td>
-                            <ul style="list-style-type: none; padding: 0; margin: 0;">
-                                {% for member in team %}
-                                <li>{{ member }}</li>
-                                {% endfor %}
-                            </ul>
-                        </td>
-                        <td>
-                            {% set total = 0 %}
-                            {% set count = 0 %}
-                            {% for member in team %}
-                                {% for stat in ratings_statistics %}
-                                    {% if stat.name.strip().lower() == member.strip().lower() %}
-                                        {% if stat.average != 'N/A' and stat.average != '' %}
-                                            {% set total = total + (stat.average | float) %}
-                                            {% set count = count + 1 %}
-                                        {% endif %}
-                                    {% endif %}
-                                {% endfor %}
-                            {% endfor %}
-                            {% if count > 0 %}
-                                {{ "%.2f"|format(total / count) }}
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </table>
-            {% endif %}
-        </div>
+    {% if teams %}
+        <table class="team-table">
+            <tr>
+                <th>Team No.</th>
+                <th>Members</th>
+                <th>Combined Average Rating</th>
+            </tr>
+            {% for team in teams %}
+            <tr>
+                <td>Team {{ loop.index }}</td>
+                <td>
+                    <ul style="list-style-type: none; padding: 0; margin: 0;">
+                        {% for member in team.members %}
+                        <li>{{ member }}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+                <td>{{ team.combined_avg }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+</div>
 
         <!-- Player Statistics Section -->
         <div class="player-statistics">
