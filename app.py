@@ -101,14 +101,13 @@ def calculate_ratings_statistics():
 
     return statistics_list_sorted
 
-# Helper function to assign teams
-def assign_teams(participants, num_teams=4):
+# Helper function to assign teams of 2
+def assign_teams(participants):
     """
-    Assigns participants to teams aiming for balanced total average ratings.
+    Assigns participants into teams of 2, aiming for balanced total average ratings.
 
     :param participants: List of dictionaries with 'name' and 'average' keys
-    :param num_teams: Number of teams to create
-    :return: List of teams, each team is a list of participant names
+    :return: List of teams, each team is a list of 2 participant names
     """
     # Filter out participants without an average rating
     rated_participants = [p for p in participants if isinstance(p['average'], float)]
@@ -117,21 +116,27 @@ def assign_teams(participants, num_teams=4):
     # Sort participants by average rating descending
     sorted_participants = sorted(rated_participants, key=lambda x: x['average'], reverse=True)
 
-    # Initialize teams
-    teams = [[] for _ in range(num_teams)]
-    team_totals = [0.0 for _ in range(num_teams)]
+    teams = []
+    while len(sorted_participants) >= 2:
+        high = sorted_participants.pop(0)  # Highest rated
+        low = sorted_participants.pop(-1)  # Lowest rated
+        teams.append([high['name'], low['name']])
 
-    # Assign participants to teams using a greedy algorithm
-    for participant in sorted_participants:
-        # Assign to the team with the current lowest total
-        min_team_index = team_totals.index(min(team_totals))
-        teams[min_team_index].append(participant['name'])
-        team_totals[min_team_index] += participant['average']
-
-    # Optionally, distribute unrated participants randomly
-    for participant in unrated_participants:
-        random_team_index = random.randint(0, num_teams - 1)
-        teams[random_team_index].append(participant['name'])
+    # If there's an odd participant left, pair them randomly with an unrated participant
+    if sorted_participants and unrated_participants:
+        remaining = sorted_participants.pop(0)
+        random_unrated = unrated_participants.pop(0)
+        teams.append([remaining['name'], random_unrated])
+    elif sorted_participants:
+        # If no unrated participants, pair the last two
+        if len(sorted_participants) >= 2:
+            team = [sorted_participants.pop(0)['name'], sorted_participants.pop(-1)['name']]
+            teams.append(team)
+    elif unrated_participants:
+        # Pair remaining unrated participants randomly
+        while len(unrated_participants) >= 2:
+            team = [unrated_participants.pop(0), unrated_participants.pop(0)]
+            teams.append(team)
 
     return teams
 
@@ -274,8 +279,8 @@ def admin():
     # Calculate ratings statistics
     ratings_statistics = calculate_ratings_statistics()
 
-    # Assign teams
-    teams = assign_teams(ratings_statistics, num_teams=4)  # You can change the number of teams here
+    # Assign teams of 2
+    teams = assign_teams(ratings_statistics)  # Teams will be pairs of 2
 
     return render_template(
         'admin.html',
