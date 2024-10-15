@@ -50,11 +50,11 @@ def calculate_ratings_statistics():
                 name = row['name'].strip()
                 participants.append(name)
                 self_rating = row.get('rating', '').strip()
-                if self_rating:
+                if self_rating and self_rating != '':
                     try:
-                        rating_float = float(self_rating)
-                        if 0 <= rating_float <= 5:
-                            ratings_dict[name.lower()].append(rating_float)
+                        rating_int = int(float(self_rating))  # Convert to int
+                        if 1 <= rating_int <= 5:
+                            ratings_dict[name.lower()].append(rating_int)
                     except ValueError:
                         pass  # Ignore invalid self-ratings
 
@@ -67,9 +67,9 @@ def calculate_ratings_statistics():
                 rating = row['rating'].strip()
                 if rated_player and rating:
                     try:
-                        rating_float = float(rating)
-                        if 0 <= rating_float <= 5:
-                            ratings_dict[rated_player].append(rating_float)
+                        rating_int = int(float(rating))  # Convert to int
+                        if 1 <= rating_int <= 5:
+                            ratings_dict[rated_player].append(rating_int)
                     except ValueError:
                         pass  # Ignore invalid ratings
 
@@ -157,11 +157,11 @@ def rate(self_name):
             flash('Self rating is required.', 'danger')
             return redirect(url_for('rate', self_name=self_name))
         try:
-            self_rating = float(self_rating)
-            if not (0 <= self_rating <= 5):
+            self_rating = int(float(self_rating))
+            if not (1 <= self_rating <= 5):
                 raise ValueError
         except ValueError:
-            flash('Self rating must be a number between 0 and 5.', 'danger')
+            flash('Self rating must be an integer between 1 and 5.', 'danger')
             return redirect(url_for('rate', self_name=self_name))
 
         # Update or add the self-rating in `participants.csv`
@@ -198,12 +198,12 @@ def rate(self_name):
                 random_rating = request.form.get(f'rating_{i}', '').strip()
                 if random_player and random_rating:
                     try:
-                        random_rating_float = float(random_rating)
-                        if 0 <= random_rating_float <= 5:
+                        random_rating_int = int(float(random_rating))
+                        if 1 <= random_rating_int <= 5:
                             writer.writerow({
                                 'rater': self_name,
                                 'rated_player': random_player,
-                                'rating': random_rating_float
+                                'rating': random_rating_int
                             })
                     except ValueError:
                         pass  # Ignore invalid ratings
@@ -336,11 +336,11 @@ def admin_update_participant_rating():
         return redirect(url_for('admin'))
 
     try:
-        new_rating = float(new_rating)
-        if not (0 <= new_rating <= 5):
+        new_rating = int(float(new_rating))
+        if not (1 <= new_rating <= 5):
             raise ValueError
     except ValueError:
-        flash('Rating must be a number between 0 and 5.', 'danger')
+        flash('Rating must be an integer between 1 and 5.', 'danger')
         return redirect(url_for('admin'))
 
     # Update participant rating in participants.csv
@@ -379,11 +379,11 @@ def admin_update_given_ratings():
         return redirect(url_for('admin'))
 
     try:
-        new_rating = float(new_rating)
-        if not (0 <= new_rating <= 5):
+        new_rating = int(float(new_rating))
+        if not (1 <= new_rating <= 5):
             raise ValueError
     except ValueError:
-        flash('Rating must be a number between 0 and 5.', 'danger')
+        flash('Rating must be an integer between 1 and 5.', 'danger')
         return redirect(url_for('admin'))
 
     # Update the rating in ratings.csv
