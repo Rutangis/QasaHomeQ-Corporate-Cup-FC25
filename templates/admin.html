@@ -404,7 +404,7 @@
 
         <!-- Team Assignment Section -->
         <div class="team-assignment">
-            <h2>Team Assignments</h2>
+            <h2>Team Assignments (Teams of 2)</h2>
             <form action="{{ url_for('admin') }}" method="get">
                 <button type="submit" class="generate-teams-button" onclick="return confirmGenerateTeams()">Generate Teams</button>
             </form>
@@ -414,7 +414,7 @@
                     <tr>
                         <th>Team No.</th>
                         <th>Members</th>
-                        <th>Total Average Rating</th>
+                        <th>Combined Average Rating</th>
                     </tr>
                     {% for team in teams %}
                     <tr>
