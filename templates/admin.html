@@ -183,6 +183,57 @@
             background-color: #27ae60;
         }
 
+        /* Team Assignment Section Styling */
+        .team-assignment {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .generate-teams-button {
+            background-color: #f39c12;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .generate-teams-button:hover {
+            background-color: #e67e22;
+        }
+
+        .team-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .team-table, .team-table th, .team-table td {
+            border: 1px solid #ddd;
+        }
+
+        .team-table th, .team-table td {
+            padding: 12px;
+            text-align: left;
+            font-size: 1em;
+            color: #2c3e50;
+        }
+
+        .team-table th {
+            background-color: #8e44ad;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .team-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
         /* Responsive adjustments for smaller screens */
         @media (max-width: 768px) {
             body {
@@ -201,9 +252,38 @@
                 font-size: 0.9em;
             }
 
-            button, .remove-button, .add-button {
+            button, .remove-button, .add-button, .generate-teams-button {
                 font-size: 0.9em;
             }
+        }
+
+        /* Flash Messages Styling */
+        .flash-messages {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .flash-messages .alert {
+            padding: 10px;
+            border-radius: 5px;
+            color: #fff;
+            margin-bottom: 10px;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .alert-success {
+            background-color: #2ecc71;
+        }
+
+        .alert-danger {
+            background-color: #e74c3c;
+        }
+
+        .alert-warning {
+            background-color: #f1c40f;
+            color: #333;
         }
     </style>
     <script>
@@ -218,12 +298,29 @@
                 document.getElementById(formId).submit();
             }
         }
+
+        function confirmGenerateTeams() {
+            return confirm('Are you sure you want to generate teams? Existing team assignments will be overwritten.');
+        }
     </script>
 </head>
 <body>
     <div class="content-container">
         <h1>Admin - Participant Ratings Overview</h1>
         
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-messages">
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
         <div class="download-links">
             <a href="{{ url_for('download_participants') }}">Download Participants CSV</a>
             <a href="{{ url_for('download_ratings') }}">Download Ratings CSV</a>
@@ -253,7 +350,7 @@
                 <td>
                     <form id="participant-update-rating-{{ loop.index }}" action="{{ url_for('admin_update_participant_rating') }}" method="post">
                         <input type="hidden" name="participant_name" value="{{ participant['name'] }}">
-                        <input type="number" name="rating" value="{{ participant['rating'] }}" min="0" max="5" step="0.1" required>
+                        <input type="number" name="rating" value="{{ participant['rating'] }}" min="1" max="5" step="1" required>
                     </form>
                 </td>
                 <td>
@@ -288,7 +385,7 @@
                     <form id="rating-update-{{ loop.index }}" action="{{ url_for('admin_update_given_ratings') }}" method="post">
                         <input type="hidden" name="rater" value="{{ rating['rater'] }}">
                         <input type="hidden" name="rated_player" value="{{ rating['rated_player'] }}">
-                        <input type="number" name="rating" value="{{ rating['rating'] }}" min="0" max="5" step="0.1" required>
+                        <input type="number" name="rating" value="{{ rating['rating'] }}" min="1" max="5" step="1" required>
                     </form>
                 </td>
                 <td>
@@ -305,26 +402,48 @@
             {% endfor %}
         </table>
 
-        <!-- New Ratings Overview Section -->
-        <h2>Ratings Overview</h2>
-        <table class="ratings-overview-table">
-            <tr>
-                <th>No.</th>
-                <th>Name</th>
-                <th>Average Rating</th>
-                <th>Median Rating</th>
-                <th>Number of Ratings</th>
-            </tr>
-            {% for stat in ratings_statistics %}
-            <tr>
-                <td>{{ loop.index }}</td>
-                <td>{{ stat.name }}</td>
-                <td>{{ stat.average }}</td>
-                <td>{{ stat.median }}</td>
-                <td>{{ stat.count }}</td>
-            </tr>
-            {% endfor %}
-        </table>
+        <!-- Team Assignment Section -->
+        <div class="team-assignment">
+            <h2>Team Assignments</h2>
+            <form action="{{ url_for('admin') }}" method="get">
+                <button type="submit" class="generate-teams-button" onclick="return confirmGenerateTeams()">Generate Teams</button>
+            </form>
+
+            {% if teams %}
+                <table class="team-table">
+                    <tr>
+                        <th>Team No.</th>
+                        <th>Members</th>
+                        <th>Total Average Rating</th>
+                    </tr>
+                    {% for team in teams %}
+                    <tr>
+                        <td>Team {{ loop.index }}</td>
+                        <td>
+                            <ul style="list-style-type: none; padding: 0; margin: 0;">
+                                {% for member in team %}
+                                <li>{{ member }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>
+                            {% set total = 0 %}
+                            {% for member in team %}
+                                {% for stat in ratings_statistics %}
+                                    {% if stat.name == member %}
+                                        {% if stat.average != 'N/A' %}
+                                            {% set total = total + stat.average %}
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                            {{ "%.2f"|format(total) }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        </div>
 
         <!-- Logout Button -->
         <div style="text-align: center; margin-top: 20px;">
